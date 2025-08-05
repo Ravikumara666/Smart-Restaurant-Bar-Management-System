@@ -1,52 +1,52 @@
-"# Smart-Restaurant-Bar-Management-System" 
-# 🍽️ Restaurant Management System - Backend
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
 
-This is the backend API for the Restaurant Management System, built using **Node.js**, **Express**, and **MongoDB**. It supports features such as order management, table reservations, menu items, admin dashboard analytics, and more.
+  <h1>🍽️ Smart Restaurant & Bar Management System - Backend</h1>
 
----
+  <p>This is the backend API for the Restaurant Management System, built using <strong>Node.js</strong>, <strong>Express</strong>, and <strong>MongoDB</strong>. It supports features such as order management, table reservations, menu items, admin dashboard analytics, and more.</p>
 
-## 🚀 Features
+  <h2>🚀 Features</h2>
+  <ul>
+    <li>Admin dashboard summary and statistics</li>
+    <li>Menu item management (CRUD)</li>
+    <li>Table management (CRUD)</li>
+    <li>Order creation and status update</li>
+    <li>Authentication with JWT</li>
+    <li>Role-based access control (admin/user)</li>
+    <li>Secure REST APIs</li>
+    <li>MongoDB database integration</li>
+  </ul>
 
-- Admin dashboard summary and statistics
-- Menu item management (CRUD)
-- Table management (CRUD)
-- Order creation and status update
-- Authentication with JWT
-- Role-based access control (admin/user)
-- Secure REST APIs
-- MongoDB database integration
+  <h2>🛠️ Tech Stack</h2>
+  <ul>
+    <li>Node.js</li>
+    <li>Express.js</li>
+    <li>MongoDB + Mongoose</li>
+    <li>JWT Authentication</li>
+    <li>Multer (for image upload)</li>
+    <li>dotenv</li>
+  </ul>
 
----
-
-## 🛠️ Tech Stack
-
-- Node.js
-- Express.js
-- MongoDB + Mongoose
-- JWT Authentication
-- Multer (for image upload)
-- dotenv
-
----
-
-## ⚙️ Installation
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/your-username/restaurant-backend.git
+  <h2>⚙️ Installation</h2>
+  <pre><code>git clone https://github.com/your-username/restaurant-backend.git
 cd restaurant-backend
-
 npm install
+touch .env</code></pre>
 
-touch .env
-
-PORT=5000
+  <p>Add the following to <code>.env</code> file:</p>
+  <pre><code>PORT=5000
 MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
+JWT_SECRET=your_jwt_secret</code></pre>
 
-npm run dev
+  <p>Run the server:</p>
+  <pre><code>npm run dev</code></pre>
 
-.
+  <h2>📁 Project Structure</h2>
+  <pre><code>.
 ├── controllers/
 │   ├── auth.controller.js
 │   ├── menu.controller.js
@@ -60,42 +60,57 @@ npm run dev
 ├── .env
 ├── .gitignore
 ├── package.json
-└── server.js
+└── server.js</code></pre>
 
-```
-📚 Admin API Endpoints
-🧾 Auth Routes
-Method	Endpoint	Description
-POST	/api/auth/register	Register a new user (admin only)
-POST	/api/auth/login	Login and receive JWT token
+  <h2>📚 Admin API Endpoints</h2>
 
+  <h3>🧾 Auth Routes</h3>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td>POST</td><td>/api/auth/register</td><td>Register a new user (admin only)</td></tr>
+    <tr><td>POST</td><td>/api/auth/login</td><td>Login and receive JWT token</td></tr>
+  </table>
 
-🧠 Admin Dashboard
-Method	Endpoint	Description
-GET	/api/admin/summary	Full summary of orders, revenue, etc.
-GET	/api/admin/stats	Quick stats: pending, served, etc.
+  <h3>🧠 Admin Dashboard</h3>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td>GET</td><td>/api/admin/summary</td><td>Full summary of orders, revenue, etc.</td></tr>
+    <tr><td>GET</td><td>/api/admin/stats</td><td>Quick stats: pending, served, etc.</td></tr>
+  </table>
 
-🍽️ Menu Item Management
-Method	Endpoint	Description
-GET	/api/menu	Get all menu items
-POST	/api/menu	Add a new item (with image)
-PUT	/api/menu/:id	Update an item
-DELETE	/api/menu/:id	Delete an item
+  <h3>🍽️ Menu Item Management</h3>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td>GET</td><td>/api/menu</td><td>Get all menu items</td></tr>
+    <tr><td>POST</td><td>/api/menu</td><td>Add a new item (with image)</td></tr>
+    <tr><td>PUT</td><td>/api/menu/:id</td><td>Update an item</td></tr>
+    <tr><td>DELETE</td><td>/api/menu/:id</td><td>Delete an item</td></tr>
+  </table>
 
-📦 Image must be uploaded using multipart/form-data under key image.
+  <p><strong>Note:</strong> Image must be uploaded using <code>multipart/form-data</code> under key <code>image</code>.</p>
 
+  <h3>🪑 Table Management</h3>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td>GET</td><td>/api/tables</td><td>Get all tables</td></tr>
+    <tr><td>POST</td><td>/api/tables</td><td>Add a new table</td></tr>
+    <tr><td>PUT</td><td>/api/tables/:id</td><td>Update table</td></tr>
+    <tr><td>DELETE</td><td>/api/tables/:id</td><td>Delete table</td></tr>
+    <tr><td>GET</td><td>/api/tables/status/:status</td><td>Get tables by status (available/busy)</td></tr>
+  </table>
 
-🪑 Table Management
-Method	Endpoint	Description
-GET	/api/tables	Get all tables
-POST	/api/tables	Add a new table
-PUT	/api/tables/:id	Update table
-DELETE	/api/tables/:id	Delete table
-GET	/api/tables/status/:status	Get tables by status (available/busy)
+  <h3>🧾 Orders</h3>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td>GET</td><td>/api/orders</td><td>List all orders</td></tr>
+    <tr><td>POST</td><td>/api/orders</td><td>Create new order</td></tr>
+    <tr><td>PUT</td><td>/api/orders/:id/status</td><td>Update order status</td></tr>
+    <tr><td>DELETE</td><td>/api/orders/:id</td><td>Cancel/Delete order</td></tr>
+  </table>
 
-🧾 Orders
-Method	Endpoint	Description
-GET	/api/orders	List all orders
-POST	/api/orders	Create new order
-PUT	/api/orders/:id/status	Update order status
-DELETE	/api/orders/:id	Cancel/Delete order
+  <h2>📌 Auth Header Format</h2>
+  <p>Pass JWT token in headers like this:</p>
+  <pre><code>Authorization: Bearer &lt;your_token&gt;</code></pre>
+
+</body>
+</html>
