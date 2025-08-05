@@ -70,3 +70,21 @@ export const getOrdersByTableId = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch table orders" });
   }
 };
+
+export const updateOrderStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+
+  const io = req.app.get('io');
+  io.emit('orderStatusUpdated', order); // Notify all clients
+
+  res.status(200).json(order);
+};
+
+export const getOrderHistory = async (req, res) => {
+  const { id } = req.params;
+  const order = await Order.findById(id);
+  res.status(200).json(order.statusHistory);
+};

@@ -1,0 +1,9 @@
+
+
+GET     /api/orders              -> getAllOrders
+GET     /api/orders/table/:id    -> getOrdersByTableId
+GET     /api/orders/:id/history  -> getOrderHistory ✅
+POST    /api/orders              -> createOrder
+PUT     /api/orders/:id          -> updateOrder
+PUT     /api/orders/:id/status   -> updateOrderStatus (🔥 realtime emit)
+DELETE  /api/orders/:id          -> deleteOrder

@@ -83,3 +83,62 @@ export const deleteMenuItem = async (req, res) => {
     res.status(500).json({ error: "Delete failed" });
   }
 };
+
+// Toggle availability of a menu item
+export const toggleMenuAvailability = async (req, res) => {
+  try {
+    const item = await MenuItem.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ message: "Menu item not found" });
+    }
+
+    item.available = !item.available;
+    await item.save();
+
+    res.status(200).json({
+      message: `Menu item is now ${item.available ? 'available' : 'unavailable'}`,
+      item,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to toggle availability" });
+  }
+};
+// Update image of a menu item
+export const updateMenuItemImage = async (req, res) => {
+  try {
+    const item = await MenuItem.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ message: "Menu item not found" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No image file provided" });
+    }
+
+    const localPath = req.file.path;
+    const publicId = path.parse(req.file.filename).name;
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(localPath, {
+      public_id: publicId,
+      folder: "menu-items",
+    });
+
+    const imageUrl = result.secure_url;
+
+    // Delete old image from Cloudinary if needed (optional enhancement)
+
+    // Delete local file
+    fs.unlinkSync(localPath);
+
+    item.image = imageUrl;
+    await item.save();
+
+    res.status(200).json({
+      message: "Image updated successfully",
+      item,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update image" });
+  }
+};

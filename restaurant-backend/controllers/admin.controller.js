@@ -143,6 +143,10 @@ export const updateOrderStatus = async (req, res) => {
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
+    // After updating order
+    const io = req.app.get('io');
+    io.emit('orderStatusUpdated', order);
+
     res.status(200).json(order);
   } catch (err) {
     res.status(500).json({ error: "Failed to update order" });

@@ -1,5 +1,5 @@
 import express from 'express';
-import { createOrder, deleteOrder, getAllOrders, getOrdersByTableId, updateOrder } from '../controllers/order.controller.js';
+import { createOrder, deleteOrder, getAllOrders, getOrderHistory, getOrdersByTableId, updateOrder, updateOrderStatus } from '../controllers/order.controller.js';
 
 
 const OrderRouter = express.Router();
@@ -10,5 +10,8 @@ OrderRouter.post('/', createOrder);
 OrderRouter.put('/:id', updateOrder);
 OrderRouter.delete('/:id', deleteOrder);
 OrderRouter.get("/table/:tableId", getOrdersByTableId);
+OrderRouter.put('/:id/status', updateOrderStatus);
+OrderRouter.get('/:id/history', getOrderHistory);
+
 
 export default OrderRouter;
