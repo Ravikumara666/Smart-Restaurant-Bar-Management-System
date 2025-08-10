@@ -1,5 +1,5 @@
 import express from 'express';
-import { addTable, deleteTable, getAllTables, getTableById, getTablesByStatus, updateTable } from '../controllers/table.controller.js';
+import { addTable, assignTable, deleteTable, getAllTables, getTableById, getTablesByStatus, mergeTables, updateTable } from '../controllers/table.controller.js';
 
 const TableRouter = express.Router();
 
@@ -15,5 +15,9 @@ TableRouter.delete('/:id', deleteTable);
 TableRouter.get('/:id', getTableById);
 // Sample route for getting tables by status
 TableRouter.get('/status/:status', getTablesByStatus);
+
+TableRouter.post('/assign/:id', assignTable);     // Assign customer to table
+TableRouter.post('/merge', mergeTables);          // Merge selected tables
+
 
 export default TableRouter;
