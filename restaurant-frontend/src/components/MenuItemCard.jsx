@@ -1,27 +1,3 @@
-// import React from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { addToCart } from "../features/cart/cartSlice";
-
-// const MenuItemCard = ({ item }) => {
-//   const dispatch = useDispatch();
-//   const quantity=useSelector((state)=>state.cart.quantity);
-  
-
-//   return (
-//     <div className="menu-card">
-//       <img src={item.image} alt={item.name} width="100" />
-//       <h3>{item.name}</h3>
-//       <p>{item.description}</p>
-//       <strong>₹{item.price}</strong>
-//       <button onClick={() => dispatch(addToCart(item))}>Add to Cart</button>
-//     </div>
-
-//   );
-// };
-
-// export default MenuItemCard;
-
-
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Minus, ShoppingCart, Heart, Star } from "lucide-react";

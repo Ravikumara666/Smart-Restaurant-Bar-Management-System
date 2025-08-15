@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const CheckoutPage = () => {
   const { items } = useSelector((state) => state.cart);
   const dispatch = useDispatch();

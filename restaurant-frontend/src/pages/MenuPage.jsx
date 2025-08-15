@@ -198,7 +198,7 @@ const MenuPage = () => {
       </div>
 
       {/* Add top margin to content when pills are visible */}
-      <style jsx>{`
+      <style>{`
         @media (max-width: 1024px) {
           .flex-1 > div {
             padding-top: 4rem !important;

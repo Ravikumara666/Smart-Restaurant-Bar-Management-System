@@ -90,7 +90,7 @@ const CartButton = () => {
       </div>
 
       {/* Floating Animation CSS */}
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) translateX(-50%); }
           50% { transform: translateY(-3px) translateX(-50%); }
