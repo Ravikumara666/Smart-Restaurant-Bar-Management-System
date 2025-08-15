@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const statusEnum = ["Preparing", "Ready", "Served", "Cancelled"];
 const paymentStatusEnum = ["Pending", "Paid", "Partial", "Refunded"];
-const paymentMethodEnum = ["Cash", "Card", "UPI"];
+const paymentMethodEnum = ["cash", "card", "UPI"];
 
 const OrderSchema = new mongoose.Schema(
   {
