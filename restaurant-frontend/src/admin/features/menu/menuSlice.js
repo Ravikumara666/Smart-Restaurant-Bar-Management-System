@@ -10,10 +10,16 @@ export const fetchMenu = createAsyncThunk("menu/fetch", async () => {
 
 // ✅ Admin: toggle stock/availability
 export const toggleStock = createAsyncThunk("menu/toggleStock", async (id) => {
-  console.log("clickg...");
-  const { data } = await adminApi.put(`/menu/${id}/toggle-stock`);
-  console.log("toggled:", data);
-  return data; // updated menu item
+  try{
+    
+    console.log("clickg...");
+    const { data } = await adminApi.put(`/menu/${id}/toggle-stock`);
+    console.log("toggled:", data);
+    return data; // updated menu item
+  }catch(e)
+  {
+    console.log("error in menuslice togglestack")
+  }
 });
 
 const menuSlice = createSlice({

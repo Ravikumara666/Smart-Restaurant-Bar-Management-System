@@ -6,7 +6,7 @@ export const fetchRecentOrders = createAsyncThunk(
   "orders/fetchRecent",
   async () => {
     const { data } = await adminApi.get("/orders/recent");
-    console.log("Recent Orders API response:", data); // 🟢 Debug
+    // console.log("Recent Orders API response:", data); // 🟢 Debug
     return data;
   }
 );

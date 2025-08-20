@@ -12,20 +12,29 @@ export default function OrdersPage() {
   const { recent = [], all = [], bill = null, loading = false } = useSelector(
   (s) => s.orders || {}
 );
+
 //   const { recent, all, bill, loading } = useSelector((s) => s.orders);
   const [tab, setTab] = useState("New");
 
-  useEffect(() => {
-    dispatch(fetchRecentOrders());
-    dispatch(fetchAllOrders());
-  }, [dispatch]);
+useEffect(() => {
+  dispatch(fetchRecentOrders()).then((res) => {
+    console.log("Recent Orders from API:", res.payload);
+  });
+  dispatch(fetchAllOrders()).then((res) => {
+    console.log("All Orders from API:", res.payload);
+  });
+}, [dispatch]);
+
 
   const filtered = useMemo(() => {
-    if (tab === "New") return recent.filter((o) => o.status === "Preparing" || o.status === "Pending");
+    if (tab === "New"){
+      console.log(recent.status)
+      return recent.filter((o) => o.status === "Pending"|| o.status==="pending");
+    } 
     if (tab === "Current") return all.filter((o) => ["Preparing", "Ready"].includes(o.status));
     return all.filter((o) => ["Served", "Cancelled"].includes(o.status));
   }, [tab, recent, all]);
-
+console.log()
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-2">
@@ -47,7 +56,9 @@ export default function OrdersPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((o) => (
               <OrderCard key={o._id} order={o} />
-            ))}
+              
+            )
+          )}
           </div>
 
           <div className="mt-6">
@@ -56,28 +67,6 @@ export default function OrdersPage() {
         </>
       )}
 
-      {bill && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-            <div className="font-semibold text-lg mb-2">Bill</div>
-            <div className="text-sm text-gray-600">
-              <div>Total: ₹{bill.totals?.total}</div>
-              <div>Tax: ₹{bill.totals?.tax}</div>
-              <div>Grand: ₹{bill.totals?.grandTotal}</div>
-            </div>
-            <div className="mt-4 flex justify-end">
-              <a
-                className="px-4 py-2 rounded-xl bg-gray-900 text-white"
-                href={`${import.meta.env.VITE_ADMIN_BASE_URL}/orders/${bill.order?._id}/bill`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Download
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

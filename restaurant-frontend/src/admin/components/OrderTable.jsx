@@ -20,9 +20,11 @@ export default function OrderTable({ orders = [] }) {
           {orders.map((o) => (
             <tr key={o._id} className="border-t">
               <td className="p-3">{o._id.slice(-6)}</td>
-              <td className="p-3">{o.tableName || o.table?.tableNumber}</td>
+              <td className="p-3">{o.tableId.tableNumber || o.table?.tableNumber}</td>
               <td className="p-3">
-                {o.items?.map((i) => `${i.quantity}x ${i.menuItem?.name || i.name}`).join(", ")}
+                {o.items
+  ?.map((i) => `${i.quantity}x ${i.menuItemId?.name || i.name}`)
+  .join(", ")}
               </td>
               <td className="p-3">{o.status}</td>
               <td className="p-3">₹{o.totalPrice}</td>

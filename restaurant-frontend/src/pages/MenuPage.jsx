@@ -16,10 +16,13 @@ const MenuPage = () => {
     (async () => {
       try {
         setLoading(true);
+        console.log("start")
         const data = await getMenuItems();
         setMenu(data);
+        console.log("set data in menu")
         const uniqueCategories = [...new Set(data.map(item => item.category))];
         setCategories(uniqueCategories);
+        console.log("set the category")
         
         // Set first category as default if no category is selected
         if (uniqueCategories.length > 0 && !selectedCategory) {

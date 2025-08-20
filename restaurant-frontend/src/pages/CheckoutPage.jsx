@@ -89,10 +89,11 @@ const CheckoutPage = () => {
         paymentMethod,
         notes: notes.trim()||" ",
         placedBy: customerName.trim()||" ",
+        status: "pending"
       };
 
       const res = await axios.post(`${API_BASE_URL}/orders`, orderData);
-
+      console.log(orderData)
       if (res.data?.error) {
         setErrors({ submit: res.data.error });
       } else {

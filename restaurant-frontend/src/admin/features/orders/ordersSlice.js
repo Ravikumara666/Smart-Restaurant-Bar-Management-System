@@ -1,6 +1,6 @@
 // admin/features/orders/ordersSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchRecentOrders, fetchAllOrders } from "./ordersThunks";
+import { fetchRecentOrders, fetchAllOrders, fetchOrderBill } from "./ordersThunks";
 
 const initialState = {
   recent: [],
@@ -45,6 +45,9 @@ const ordersSlice = createSlice({
       .addCase(fetchAllOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(fetchOrderBill.fulfilled, (state, action) => {
+        state.bill = action.payload; // { order, totals }
       });
   },
 });
