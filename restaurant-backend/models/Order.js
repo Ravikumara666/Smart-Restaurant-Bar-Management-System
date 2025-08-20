@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const statusEnum = ["Preparing", "Ready", "Served", "Cancelled"];
+const statusEnum = ["pending","confirmed","preparing", "ready", "delivered", "cancelled"];
 const paymentStatusEnum = ["Pending", "Paid", "Partial", "Refunded"];
 const paymentMethodEnum = ["cash", "card", "UPI"];
 
@@ -28,7 +28,7 @@ const OrderSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: statusEnum,
-      default: "Preparing",
+      default: "pending",
     },
 
     statusHistory: [

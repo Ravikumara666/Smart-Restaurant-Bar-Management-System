@@ -58,33 +58,63 @@ export const updateOrderStatus = async (req, res) => {
 };
 
 // ✅ Generate Bill for an order
+// controllers/admin.order.controller.js
 export const generateBill = async (req, res) => {
   try {
-    const { id } = req.params;
-    const order = await Order.findById(id).populate("items.menuItemId");
+    const order = await Order.findById(req.params.id).populate("items.menuItemId");
+    if (!order) return res.status(404).json({ message: "Order not found" });
 
-    if (!order) return res.status(404).json({ error: "Order not found" });
+    const items = order.items.map(i => ({
+      name: i.menuItemId?.name || i.name,
+      quantity: i.quantity,
+      price: i.menuItemId?.price || i.price,
+      subtotal: (i.menuItemId?.price || i.price) * i.quantity
+    }));
 
-    // Mark table as free after billing
-    await Table.findByIdAndUpdate(order.tableId, { status: "available", isOccupied: false });
+    const subtotal = items.reduce((acc, i) => acc + i.subtotal, 0);
+    const taxRate = 0.18;
+    const tax = +(subtotal * taxRate).toFixed(2);
+    const grandTotal = +(subtotal + tax).toFixed(2);
 
-    // Example bill data
-    const bill = {
+    res.json({
       orderId: order._id,
       table: order.tableId,
-      items: order.items.map((i) => ({
-        name: i.menuItemId.name,
-        quantity: i.quantity,
-        price: i.menuItemId.price,
-        subtotal: i.quantity * i.menuItemId.price,
-      })),
-      total: order.totalPrice,
       paymentMethod: order.paymentMethod,
-      generatedAt: new Date(),
-    };
-
-    res.json(bill);
+      items,
+      totals: { subtotal, tax, grandTotal },
+      generatedAt: new Date()
+    });
   } catch (err) {
-    res.status(500).json({ error: "Failed to generate bill" });
+    res.status(500).json({ message: err.message });
   }
 };
+// export const generateBill = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const order = await Order.findById(id).populate("items.menuItemId");
+
+//     if (!order) return res.status(404).json({ error: "Order not found" });
+
+//     // Mark table as free after billing
+//     await Table.findByIdAndUpdate(order.tableId, { status: "available", isOccupied: false });
+
+//     // Example bill data
+//     const bill = {
+//       orderId: order._id,
+//       table: order.tableId,
+//       items: order.items.map((i) => ({
+//         name: i.menuItemId.name,
+//         quantity: i.quantity,
+//         price: i.menuItemId.price,
+//         subtotal: i.quantity * i.menuItemId.price,
+//       })),
+//       total: order.totalPrice,
+//       paymentMethod: order.paymentMethod,
+//       generatedAt: new Date(),
+//     };
+
+//     res.json(bill);
+//   } catch (err) {
+//     res.status(500).json({ error: "Failed to generate bill" });
+//   }
+// };
