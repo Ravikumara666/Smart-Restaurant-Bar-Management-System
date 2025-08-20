@@ -15,7 +15,11 @@ AdminRouter.use(isAdmin)
 AdminRouter.get('/dashboard/summary', getDashboardSummary);
 AdminRouter.get('/dashboard/stats',getDashboardStats);
 
-
+// ------------------ DASHBOARD ------------------ //
+AdminRouter.get("/dashboard/summary", getDashboardSummary);
+AdminRouter.get("/dashboard/stats", getDashboardStats);
+AdminRouter.get("/dashboard/revenue",getRevenueStats );
+AdminRouter.get("/dashboard/top-items", getTopItems);
 // ------------------ ORDERS ------------------ //
 AdminRouter.get("/orders", getAllOrders);
 AdminRouter.get("/orders/recent", getRecentOrders);
