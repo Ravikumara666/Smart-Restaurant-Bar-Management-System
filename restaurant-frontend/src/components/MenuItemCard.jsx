@@ -113,9 +113,16 @@ const MenuItemCard = ({ item }) => {
             </div>
           )}
         </div>
-
+        
         {/* Add to Cart Section */}
-        {quantity === 0 ? (
+        {!item.available ? (
+  <button
+    disabled
+    className="w-full bg-gray-300 text-gray-600 py-3 px-4 rounded-lg font-semibold cursor-not-allowed"
+  >
+    Out of Stock
+  </button>
+) : quantity === 0 ? (
           /* Add to Cart Button */
           <button
             onClick={handleAddToCart}

@@ -37,19 +37,19 @@ const OrderStatusPage = () => {
       icon: Clock, 
       color: 'text-yellow-600 bg-yellow-100', 
       message: 'Order received and being processed',
-      progress: 25
+      progress: 0
     },
     confirmed: { 
       icon: CheckCircle, 
       color: 'text-blue-600 bg-blue-100', 
       message: 'Order confirmed by restaurant',
-      progress: 50
+      progress: 25
     },
     preparing: { 
       icon: ChefHat, 
       color: 'text-orange-600 bg-orange-100', 
       message: 'Your delicious meal is being prepared',
-      progress: 75
+      progress: 45
     },
     ready: { 
       icon: CheckCircle, 
@@ -76,6 +76,7 @@ const OrderStatusPage = () => {
     try {
       setLoading(true);
       const res = await axios.get(`${API_BASE_URL}/orders/${id}`);
+      console.log(res)
       setOrder(res.data);
       setLastUpdated(new Date());
       setError(null);
@@ -169,8 +170,11 @@ const OrderStatusPage = () => {
     );
   }
 
+  console.log(order.status)
   const currentStatus = statusConfig[order.status] || statusConfig.pending;
+  console.log(currentStatus)
   const StatusIcon = currentStatus.icon;
+  console.log(StatusIcon)
 
   return (
     <div className="min-h-screen bg-gray-50">
