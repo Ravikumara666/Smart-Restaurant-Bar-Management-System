@@ -60,7 +60,7 @@ export default function DashboardPage() {
     stats.orderStatusStats?.map((p) => ({ name: p._id, value: p.count })) || [];
 
   const COLORS = ["#FF8042", "#00C49F", "#0088FE", "#FFBB28", "#AF19FF"];
-
+  
   return (
     <div className="p-6 space-y-6">
       {/* ✅ Filter Buttons */}
@@ -132,42 +132,47 @@ export default function DashboardPage() {
 
         {/* ✅ Order Status Pie Chart */}
         <div className="rounded-2xl border bg-white p-4">
-          <div className="font-semibold mb-2">Order Status</div>
-          <div className="h-64 flex flex-col items-center justify-center">
-            {orderStatusChart.length > 0 ? (
-              <>
-                <ResponsiveContainer width="100%" height="80%">
-                  <PieChart>
-                    <Pie
-                      data={orderStatusChart}
-                      dataKey="value"
-                      nameKey="name"
-                      outerRadius={80}
-                      label
-                    >
-                      {orderStatusChart.map((_, i) => (
-                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="mt-4 flex gap-4 flex-wrap justify-center">
-                  {orderStatusChart.map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <span
-                        className="inline-block w-4 h-4 rounded"
-                        style={{ backgroundColor: COLORS[i % COLORS.length] }}
-                      ></span>
-                      <span className="text-sm text-gray-700">{item.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p className="text-gray-500">No order status data available</p>
-            )}
-          </div>
+  <div className="font-semibold mb-2">Order Status</div>
+  <div className="h-64 flex flex-col items-center justify-center">
+    {orderStatusChart.length > 0 ? (
+      <>
+        <ResponsiveContainer width="100%" height="80%">
+          <PieChart>
+            <Pie
+              data={orderStatusChart}
+              dataKey="value"
+              nameKey="name"
+              outerRadius={90} // Increased for better visibility
+              label={({ name, value }) => `${value}`} // ✅ Show only numbers
+              labelLine={false} // ✅ Remove lines for cleaner look
+            >
+              {orderStatusChart.map((_, i) => (
+                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+
+        {/* ✅ Legend */}
+        <div className="mt-4 flex gap-4 flex-wrap justify-center">
+          {orderStatusChart.map((item, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <span
+                className="inline-block w-4 h-4 rounded"
+                style={{ backgroundColor: COLORS[i % COLORS.length] }}
+              ></span>
+              <span className="text-sm text-gray-700">
+                {item.name} ({item.value})
+              </span>
+            </div>
+          ))}
         </div>
+      </>
+    ) : (
+      <p className="text-gray-500">No order status data available</p>
+    )}
+  </div>
+</div>
       </div>
 
       {/* ✅ Revenue Trend & Top Items */}

@@ -80,6 +80,19 @@ export default function OrdersPage() {
     return result.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
   }, [tab, recent, all, historyFilter, customDate]);
 
+  // ✅ Corrected listener in OrdersPage.jsx
+useEffect(() => {
+  socket.on("newOrder", (order) => {
+    console.log("✅ New order received → Refreshing orders...");
+    dispatch(fetchRecentOrders());
+    dispatch(fetchAllOrders());
+  });
+
+  return () => {
+    socket.off("newOrder"); // ✅ Clean up
+  };
+}, [dispatch]);
+
   return (
     <div className="p-6 space-y-6">
       {/* Tabs */}
