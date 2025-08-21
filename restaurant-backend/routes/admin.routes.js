@@ -10,7 +10,7 @@ import { addMenuItem, deleteMenuItem, getMenu, toggleStock, updateMenuItem } fro
 const AdminRouter = express.Router();
 
 
-AdminRouter.use(isAdmin)
+// AdminRouter.use(isAdmin)
 // Admin Dashboard Summary
 AdminRouter.get('/dashboard/summary', getDashboardSummary);
 AdminRouter.get('/dashboard/stats',getDashboardStats);
