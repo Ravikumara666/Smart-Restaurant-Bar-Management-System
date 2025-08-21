@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, Home, ShoppingCart, User } from 'lucide-react';
+import { Menu, X, Home, ShoppingCart, User, LogIn } from 'lucide-react';
 import MenuItemCard from "../components/MenuItemCard";
 import { getMenuItems } from "../utils/menuApi";
 import CartButton from "../components/CartButton";
+import { useNavigate } from "react-router-dom";
 
 
 const MenuPage = () => {
@@ -11,7 +12,7 @@ const MenuPage = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(true);
-
+const navigate=useNavigate()
   useEffect(() => {
     (async () => {
       try {
@@ -56,19 +57,31 @@ const MenuPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-orange-500 text-white sticky top-0 z-40 shadow-md">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden mr-3 p-1 hover:bg-orange-600 rounded-lg transition-colors"
-            >
-              <Menu size={24} />
-            </button>
-            <h1 className="text-xl font-bold">11Smart Dining</h1>
-          </div>
+ <div className="bg-orange-500 text-white sticky top-0 z-40 shadow-md">
+      <div className="flex items-center justify-between p-4">
+        {/* Left Section */}
+        <div className="flex items-center">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="lg:hidden mr-3 p-1 hover:bg-orange-600 rounded-lg transition-colors"
+          >
+            <Menu size={24} />
+          </button>
+          <h1 className="text-xl font-bold">Smart Dining</h1>
+        </div>
+
+        {/* Right Section - Login Button */}
+        <div>
+          <button
+            onClick={() => navigate("/login")}
+            className="flex items-center gap-2 bg-white text-orange-500 px-4 py-2 rounded-lg hover:bg-orange-100 transition"
+          >
+            <LogIn size={18} />
+            <span className="font-semibold">Login</span>
+          </button>
         </div>
       </div>
+    </div>
 
       <div className="flex relative">
         {/* Sidebar */}

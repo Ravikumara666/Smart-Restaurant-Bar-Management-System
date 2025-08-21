@@ -7,19 +7,21 @@ import { generateBill, getAllOrders, getRecentOrders, updateOrderStatus } from '
 import { freeTable, getAllTables, getOccupiedTables } from '../controllers/admin.table.controller.js';
 import { exportSalesReport, getSalesReport } from '../controllers/admin.report.controller.js';
 import { addMenuItem, deleteMenuItem, getMenu, toggleStock, updateMenuItem } from '../controllers/admin.menu.controller.js';
+import { adminLogin } from '../controllers/admin.auth.controller.js';
 const AdminRouter = express.Router();
 
 
-// AdminRouter.use(isAdmin)
+
+AdminRouter.post("/auth/login", adminLogin);
 // Admin Dashboard Summary
-AdminRouter.get('/dashboard/summary', getDashboardSummary);
-AdminRouter.get('/dashboard/stats',getDashboardStats);
+AdminRouter.get('/dashboard/summary',isAdmin, getDashboardSummary);
+AdminRouter.get('/dashboard/stats',isAdmin,getDashboardStats);
 
 // ------------------ DASHBOARD ------------------ //
-AdminRouter.get("/dashboard/summary", getDashboardSummary);
-AdminRouter.get("/dashboard/stats", getDashboardStats);
-AdminRouter.get("/dashboard/revenue",getRevenueStats );
-AdminRouter.get("/dashboard/top-items", getTopItems);
+AdminRouter.get("/dashboard/summary",isAdmin, getDashboardSummary);
+AdminRouter.get("/dashboard/stats",isAdmin, getDashboardStats);
+AdminRouter.get("/dashboard/revenue",isAdmin, getRevenueStats );
+AdminRouter.get("/dashboard/top-items",isAdmin, getTopItems);
 // ------------------ ORDERS ------------------ //
 AdminRouter.get("/orders", getAllOrders);
 AdminRouter.get("/orders/recent", getRecentOrders);
@@ -38,7 +40,7 @@ AdminRouter.put("/menu/:id/toggle-stock", toggleStock); // toggle stock
 AdminRouter.delete("/menu/:id", deleteMenuItem); 
 
 // ------------------ SALES ------------------ //
-AdminRouter.get("/sales", getSalesReport);
-AdminRouter.get("/sales/export", exportSalesReport);
+AdminRouter.get("/sales",isAdmin, getSalesReport);
+AdminRouter.get("/sales/export",isAdmin, exportSalesReport);
 
 export default AdminRouter;
