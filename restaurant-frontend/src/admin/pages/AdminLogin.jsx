@@ -18,9 +18,10 @@ export default function AdminLogin() {
 
     try {
       const response = await adminLoginApi({ username, password, role });
+      console.log(username)
       if (response.success) {
         localStorage.setItem("adminToken", response.token);
-        navigate("/admin/dashboard");
+        navigate("/admin/orders");
       }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");

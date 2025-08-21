@@ -62,12 +62,25 @@ export const createOrder = async (req, res) => {
 
     console.log("✅ Table status updated");
 
+    // ✅ Step 4: Emit socket event for real-time notifications
+    const io = req.app.get('io'); // Access io from Express app
+    io.emit("newOrder", {
+      _id: order._id,
+      tableNumber: table.tableNumber,
+      status: order.status,
+      totalPrice: order.totalPrice,
+      createdAt: order.createdAt,
+    });
+
+    console.log("📢 Socket event emitted: newOrder");
+
     res.status(201).json(order);
   } catch (err) {
     console.error("🔥 Error in createOrder:", err);
     res.status(500).json({ error: "Order creation failed", details: err.message });
   }
 };
+
 
 export const getOrderById = async (req, res) => {
   try {

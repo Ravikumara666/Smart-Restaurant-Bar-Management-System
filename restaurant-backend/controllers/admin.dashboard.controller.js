@@ -1,33 +1,62 @@
 import Order from "../models/Order.js";
+import Table from "../models/Table.js";
 
 
 
 // ✅ Summary (total orders, revenue, tables, etc.)
 export const getDashboardSummary = async (req, res) => {
   try {
-    const totalOrders = await Order.countDocuments();
-    const todaysOrders = await Order.countDocuments({
-      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
-    });
-    const totalRevenue = await Order.aggregate([{ $group: { _id: null, total: { $sum: "$totalPrice" } } }]);
+    const { range = "today" } = req.query;
+
+    const dateFilter = {};
+    const now = new Date();
+    if (range === "today") {
+      dateFilter.createdAt = { $gte: new Date().setHours(0, 0, 0, 0) };
+    } else if (range === "week") {
+      dateFilter.createdAt = { $gte: new Date(now.setDate(now.getDate() - 7)) };
+    } else if (range === "month") {
+      dateFilter.createdAt = { $gte: new Date(now.setMonth(now.getMonth() - 1)) };
+    } else if (range === "year") {
+      dateFilter.createdAt = { $gte: new Date(now.setFullYear(now.getFullYear() - 1)) };
+    }
+
+    const totalOrders = await Order.countDocuments(dateFilter);
+    const totalRevenueAgg = await Order.aggregate([
+      { $match: dateFilter },
+      { $group: { _id: null, total: { $sum: "$totalPrice" } } },
+    ]);
+
+    const totalRevenue = totalRevenueAgg[0]?.total || 0;
+
+    const totalTables = await Table.countDocuments();
+    const occupiedTables = await Table.countDocuments({ status: "occupied" });
 
     res.json({
       totalOrders,
-      todaysOrders,
-      totalRevenue: totalRevenue[0]?.total || 0,
+      totalRevenue,
+      totalTables,
+      occupiedTables,
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Failed to fetch summary" });
   }
 };
 
+
 // ✅ Stats
 export const getDashboardStats = async (req, res) => {
   try {
+    const { range = "today" } = req.query;
+    const dateFilter = getDateRangeQuery(range);
+
     const paymentStats = await Order.aggregate([
+      { $match: { createdAt: dateFilter } },
       { $group: { _id: "$paymentMethod", count: { $sum: 1 } } },
     ]);
+
     const orderStatusStats = await Order.aggregate([
+      { $match: { createdAt: dateFilter } },
       { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
 
@@ -37,13 +66,15 @@ export const getDashboardStats = async (req, res) => {
   }
 };
 
+
 // ✅ Revenue for graph
 export const getRevenueStats = async (req, res) => {
   try {
     const { range = "week" } = req.query;
+    const dateFilter = getDateRangeQuery(range);
 
-    // Example: group by day
     const data = await Order.aggregate([
+      { $match: { createdAt: dateFilter } },
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
@@ -59,12 +90,27 @@ export const getRevenueStats = async (req, res) => {
   }
 };
 
+
 // ✅ Top Selling Items
 export const getTopItems = async (req, res) => {
   try {
-    const { limit = 5 } = req.query;
+    const { limit = 5, range = "today" } = req.query;
+
+    // Date filter for today/week/month/year
+    const dateFilter = {};
+    const now = new Date();
+    if (range === "today") {
+      dateFilter.createdAt = { $gte: new Date().setHours(0, 0, 0, 0) };
+    } else if (range === "week") {
+      dateFilter.createdAt = { $gte: new Date(now.setDate(now.getDate() - 7)) };
+    } else if (range === "month") {
+      dateFilter.createdAt = { $gte: new Date(now.setMonth(now.getMonth() - 1)) };
+    } else if (range === "year") {
+      dateFilter.createdAt = { $gte: new Date(now.setFullYear(now.getFullYear() - 1)) };
+    }
 
     const items = await Order.aggregate([
+      { $match: dateFilter },
       { $unwind: "$items" },
       {
         $group: {
@@ -74,10 +120,45 @@ export const getTopItems = async (req, res) => {
       },
       { $sort: { totalQuantity: -1 } },
       { $limit: parseInt(limit) },
+      {
+        $lookup: {
+          from: "menuitems", // Your menu item collection name
+          localField: "_id",
+          foreignField: "_id",
+          as: "itemDetails",
+        },
+      },
+      { $unwind: "$itemDetails" },
+      {
+        $project: {
+          _id: 0,
+          name: "$itemDetails.name",
+          totalQuantity: 1,
+        },
+      },
     ]);
 
     res.json(items);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Failed to fetch top items" });
   }
+};
+
+
+const getDateRangeQuery = (range) => {
+  const now = new Date();
+  if (range === "today") {
+    return { $gte: new Date(now.setHours(0, 0, 0, 0)) };
+  }
+  if (range === "week") {
+    return { $gte: new Date(now.setDate(now.getDate() - 7)) };
+  }
+  if (range === "month") {
+    return { $gte: new Date(now.getFullYear(), now.getMonth(), 1) };
+  }
+  if (range === "year") {
+    return { $gte: new Date(now.getFullYear(), 0, 1) };
+  }
+  return {}; // Default: no filter
 };

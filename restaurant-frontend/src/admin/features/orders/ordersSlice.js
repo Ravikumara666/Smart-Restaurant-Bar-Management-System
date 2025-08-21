@@ -1,4 +1,3 @@
-// admin/features/orders/ordersSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchRecentOrders, fetchAllOrders, fetchOrderBill } from "./ordersThunks";
 
@@ -46,8 +45,23 @@ const ordersSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
       .addCase(fetchOrderBill.fulfilled, (state, action) => {
-        state.bill = action.payload; // { order, totals }
+        state.bill = action.payload;
+      })
+
+      // ✅ Handle local status update instantly
+      .addCase("orders/updateStatusLocal", (state, action) => {
+        const { id, status } = action.payload;
+
+        // Update in recent
+        const updateList = (list) => {
+          const order = list.find((o) => o._id === id);
+          if (order) order.status = status;
+        };
+
+        updateList(state.recent);
+        updateList(state.all);
       });
   },
 });

@@ -47,28 +47,46 @@ export default function OrderCard({ order }) {
     setBill(result); // { order, totals }
   };
 
-  const getNextButton = () => {
-    if (localStatus === "Pending") {
-      return (
-        <button onClick={accept} className="px-3 py-1 rounded-lg bg-blue-600 text-white">
+const getNextButton = () => {
+  if (localStatus.toLowerCase() === "pending") {
+    return (
+      <>
+        <button
+          onClick={accept}
+          className="px-3 py-1 rounded-lg bg-blue-600 text-white"
+        >
           <Clock size={16} className="inline mr-1" /> Accept
         </button>
-      );
-    } else if (localStatus === "Preparing") {
-      return (
-        <button onClick={ready} className="px-3 py-1 rounded-lg bg-amber-500 text-white">
-          Ready
+        <button
+          onClick={reject}
+          className="px-3 py-1 rounded-lg bg-red-600 text-white"
+        >
+          <XCircle size={16} className="inline mr-1" /> Reject
         </button>
-      );
-    } else if (localStatus === "Ready") {
-      return (
-        <button onClick={served} className="px-3 py-1 rounded-lg bg-green-600 text-white">
-          <CheckCircle size={16} className="inline mr-1" /> Served
-        </button>
-      );
-    }
-    return null;
-  };
+      </>
+    );
+  } else if (localStatus === "Preparing") {
+    return (
+      <button
+        onClick={ready}
+        className="px-3 py-1 rounded-lg bg-amber-500 text-white"
+      >
+        Ready
+      </button>
+    );
+  } else if (localStatus === "Ready") {
+    return (
+      <button
+        onClick={served}
+        className="px-3 py-1 rounded-lg bg-green-600 text-white"
+      >
+        <CheckCircle size={16} className="inline mr-1" /> Served
+      </button>
+    );
+  }
+  return null;
+};
+
 console.log(bill)
   return (
     <div className="border rounded-2xl p-4 bg-white relative">

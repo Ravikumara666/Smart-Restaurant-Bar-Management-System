@@ -13,15 +13,12 @@ const AdminRouter = express.Router();
 
 
 AdminRouter.post("/auth/login", adminLogin);
-// Admin Dashboard Summary
-AdminRouter.get('/dashboard/summary',isAdmin, getDashboardSummary);
-AdminRouter.get('/dashboard/stats',isAdmin,getDashboardStats);
 
 // ------------------ DASHBOARD ------------------ //
-AdminRouter.get("/dashboard/summary",isAdmin, getDashboardSummary);
-AdminRouter.get("/dashboard/stats",isAdmin, getDashboardStats);
-AdminRouter.get("/dashboard/revenue",isAdmin, getRevenueStats );
-AdminRouter.get("/dashboard/top-items",isAdmin, getTopItems);
+AdminRouter.get("/dashboard/summary", getDashboardSummary);
+AdminRouter.get("/dashboard/stats", getDashboardStats);
+AdminRouter.get("/dashboard/revenue", getRevenueStats );
+AdminRouter.get("/dashboard/top-items", getTopItems);
 // ------------------ ORDERS ------------------ //
 AdminRouter.get("/orders", getAllOrders);
 AdminRouter.get("/orders/recent", getRecentOrders);
