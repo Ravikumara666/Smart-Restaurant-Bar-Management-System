@@ -51,11 +51,14 @@ app.use(limiter);
 
 // ⛓️ Create HTTP Server for Socket.IO
 const server = http.createServer(app);
-
+const allowedOrigins = [
+  "https://smart-restaurant-bar-management-sys.vercel.app/", // ✅ Your React app domain
+  "http://localhost:5173" // ✅ Local dev
+];
 // 🔌 Setup Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: allowedOrigins,
     methods: ['GET', 'POST','PUT','PATCH'],
   },
 });
