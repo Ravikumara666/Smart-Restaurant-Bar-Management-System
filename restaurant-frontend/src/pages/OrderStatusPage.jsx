@@ -45,25 +45,25 @@ const OrderStatusPage = () => {
       message: 'Order confirmed by restaurant',
       progress: 25
     },
-    preparing: { 
+    Preparing: { 
       icon: ChefHat, 
       color: 'text-orange-600 bg-orange-100', 
       message: 'Your delicious meal is being prepared',
       progress: 45
     },
-    ready: { 
+    Ready: { 
       icon: CheckCircle, 
       color: 'text-green-600 bg-green-100', 
       message: 'Order ready for pickup/delivery',
       progress: 90
     },
-    delivered: { 
+    Served: { 
       icon: CheckCircle, 
       color: 'text-green-600 bg-green-100', 
       message: 'Order completed successfully',
       progress: 100
     },
-    cancelled: { 
+    Cancelled: { 
       icon: AlertCircle, 
       color: 'text-red-600 bg-red-100', 
       message: 'Order has been cancelled',
