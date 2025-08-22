@@ -36,14 +36,16 @@ export default function MenuPage() {
         <div className="grid md:grid-cols-3 gap-6">
           {list.map((m) => (
             <MenuCard
-              key={m._id}
-              item={m}
-              onEdit={() => {
-                setEditItem(m);
-                setShowModal(true);
-              }}
-              onToggle={() => dispatch(toggleStock(m._id))}
-            />
+  key={m._id}
+  item={m}
+  onEdit={() => {
+    setEditItem(m);
+    setShowModal(true);
+  }}
+  onToggle={() => dispatch(toggleStock(m._id))}
+  onDelete={(id) => dispatch(deleteMenuItem(id))}
+/>
+
           ))}
         </div>
       )}

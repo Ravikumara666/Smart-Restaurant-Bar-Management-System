@@ -39,19 +39,29 @@ export default function MenuFormModal({ onClose, editItem }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (formData[key] !== null) data.append(key, formData[key]);
-    });
+  e.preventDefault();
 
-    if (editItem) {
-      dispatch(updateMenuItem({ id: editItem._id, data }));
-    } else {
-      dispatch(addMenuItem(data));
+  const data = new FormData();
+  Object.keys(formData).forEach((key) => {
+    if (formData[key] !== null) {
+if (key === "isVeg") {
+  data.append(key, formData[key] ? "true" : "false"); // Convert to string
+} else {
+  data.append(key, formData[key]);
+}
     }
-    onClose();
-  };
+  });
+
+  if (editItem) {
+-   dispatch(updateMenuItem({ id: editItem._id, data }));
++   dispatch(updateMenuItem({ id: editItem._id, formData: data }));
+  } else {
+    dispatch(addMenuItem(data));
+  }
+
+  onClose();
+};
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">

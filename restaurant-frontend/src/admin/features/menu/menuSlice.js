@@ -1,37 +1,42 @@
+// admin/features/menu/menuSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { publicApi, adminApi } from "../../utils/axiosInstance";
+import { adminApi, publicApi } from "../../utils/axiosInstance";
 
-// ✅ Fetch all menu items (Public)
+// ✅ Fetch all menu items
 export const fetchMenu = createAsyncThunk("menu/fetch", async () => {
   const { data } = await publicApi.get("/menu");
   return data;
 });
 
-// ✅ Toggle stock (Admin)
-export const toggleStock = createAsyncThunk("menu/toggleStock", async (id) => {
-  try {
-    const { data } = await adminApi.put(`/menu/${id}/toggle-stock`);
-    return data; // updated menu item
-  } catch (e) {
-    console.error("Error toggling stock:", e);
-    throw e;
-  }
-});
-
-// ✅ Add new menu item (with image)
-export const addMenuItem = createAsyncThunk("menu/addMenuItem", async (formData) => {
+// ✅ Add menu item
+export const addMenuItem = createAsyncThunk("menu/add", async (formData) => {
   const { data } = await adminApi.post("/menu", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return data.menuItem;
 });
 
-// ✅ Update existing menu item (with optional image)
-export const updateMenuItem = createAsyncThunk("menu/updateMenuItem", async ({ id, data }) => {
-  const res = await adminApi.put(`/menu/${id}`, data, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
+// ✅ Update menu item
+export const updateMenuItem = createAsyncThunk(
+  "menu/update",
+  async ({ id, data: formData }) => {
+    const { data } = await adminApi.put(`/menu/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  }
+);
+
+// ✅ Delete menu item
+export const deleteMenuItem = createAsyncThunk("menu/delete", async (id) => {
+  await adminApi.delete(`/menu/${id}`);
+  return id; // return deleted ID
+});
+
+// ✅ Toggle stock
+export const toggleStock = createAsyncThunk("menu/toggleStock", async (id) => {
+  const { data } = await adminApi.put(`/menu/${id}/toggle-stock`);
+  return data;
 });
 
 const menuSlice = createSlice({
@@ -40,10 +45,9 @@ const menuSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // ✅ Fetch menu
+      // Fetch
       .addCase(fetchMenu.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchMenu.fulfilled, (state, action) => {
         state.loading = false;
@@ -54,36 +58,26 @@ const menuSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // ✅ Toggle stock
-      .addCase(toggleStock.fulfilled, (state, action) => {
-        const updatedItem = action.payload;
-        const idx = state.list.findIndex((m) => m._id === updatedItem._id);
-        if (idx > -1) {
-          state.list[idx] = updatedItem;
-        }
-      })
-      .addCase(toggleStock.rejected, (state, action) => {
-        state.error = action.error.message;
-      })
-
-      // ✅ Add menu item
+      // Add
       .addCase(addMenuItem.fulfilled, (state, action) => {
-        state.list.push(action.payload); // Add new item at the end
-      })
-      .addCase(addMenuItem.rejected, (state, action) => {
-        state.error = action.error.message;
+        state.list.push(action.payload);
       })
 
-      // ✅ Update menu item
+      // Update
       .addCase(updateMenuItem.fulfilled, (state, action) => {
-        const updatedItem = action.payload;
-        const idx = state.list.findIndex((m) => m._id === updatedItem._id);
-        if (idx > -1) {
-          state.list[idx] = updatedItem;
-        }
+        const index = state.list.findIndex((m) => m._id === action.payload._id);
+        if (index !== -1) state.list[index] = action.payload;
       })
-      .addCase(updateMenuItem.rejected, (state, action) => {
-        state.error = action.error.message;
+
+      // Delete
+      .addCase(deleteMenuItem.fulfilled, (state, action) => {
+        state.list = state.list.filter((m) => m._id !== action.payload);
+      })
+
+      // Toggle Stock
+      .addCase(toggleStock.fulfilled, (state, action) => {
+        const index = state.list.findIndex((m) => m._id === action.payload._id);
+        if (index !== -1) state.list[index] = action.payload;
       });
   },
 });

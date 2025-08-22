@@ -31,8 +31,8 @@ AdminRouter.get("/tables/occupied", getOccupiedTables);
 AdminRouter.put("/tables/:id/free", freeTable);
 
 AdminRouter.get("/menu", getMenu);                     // fetch menu
-AdminRouter.post("/menu", addMenuItem);                // add new item
-AdminRouter.put("/menu/:id", updateMenuItem);          // update item
+AdminRouter.post("/menu",upload.single("image"), addMenuItem);                // add new item
+AdminRouter.put("/menu/:id",upload.single("image"), updateMenuItem);          // update item
 AdminRouter.put("/menu/:id/toggle-stock", toggleStock); // toggle stock
 AdminRouter.delete("/menu/:id", deleteMenuItem); 
 
