@@ -1,6 +1,3 @@
-import MenuItem from "../models/MenuItem.js";
-
-// controllers/admin.menu.controller.js
 import fs from "fs";
 import path from "path";
 import cloudinary from "cloudinary";
