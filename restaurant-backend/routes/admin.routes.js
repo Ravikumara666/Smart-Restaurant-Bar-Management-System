@@ -4,7 +4,7 @@ import { isAdmin } from '../middleware/auth.middleware.js';
 import { getDashboardStats, getDashboardSummary, getRevenueStats, getTopItems } from '../controllers/admin.dashboard.controller.js';
 
 import { generateBill, getAllOrders, getRecentOrders, updateOrderStatus } from '../controllers/admin.order.controller.js';
-import { freeTable, getAllTables, getOccupiedTables } from '../controllers/admin.table.controller.js';
+import { addTable, deleteTable, freeTable, getAllTables, getOccupiedTables, updateTable } from '../controllers/admin.table.controller.js';
 import { exportSalesReport, getSalesReport } from '../controllers/admin.report.controller.js';
 import { addMenuItem, deleteMenuItem, getMenu, toggleStock, updateMenuItem } from '../controllers/admin.menu.controller.js';
 import { adminLogin } from '../controllers/admin.auth.controller.js';
@@ -30,6 +30,9 @@ AdminRouter.get("/orders/:id/bill", generateBill);
 AdminRouter.get("/tables", getAllTables);
 AdminRouter.get("/tables/occupied", getOccupiedTables);
 AdminRouter.put("/tables/:id/free", freeTable);
+AdminRouter.post("/tables", addTable);
+AdminRouter.put("/tables/:id", updateTable);
+AdminRouter.delete("/tables/:id", deleteTable);
 
 AdminRouter.get("/menu", getMenu);                     // fetch menu
 AdminRouter.post("/menu",upload.single("image"), addMenuItem);                // add new item

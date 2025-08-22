@@ -9,12 +9,29 @@ export const fetchMenu = createAsyncThunk("menu/fetch", async () => {
 });
 
 // ✅ Add menu item
-export const addMenuItem = createAsyncThunk("menu/add", async (formData) => {
-  const { data } = await adminApi.post("/menu", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return data.menuItem;
+export const addMenuItem = createAsyncThunk("menu/add", async (formData, { rejectWithValue }) => {
+  try {
+    for (let [key, value] of formData.entries()) {
+      console.log(`   ${key}: ${value}`);
+    }
+
+    const { data } = await adminApi.post("/menu", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data.menuItem;
+
+  } catch (error) {
+    if (error.response) {
+      console.error("   Status:", error.response.status);
+      console.error("   Message:", error.response.data.message || error.response.data.error);
+    } else {
+      console.error("   Error:", error.message);
+    }
+
+    return rejectWithValue(error.response?.data || { message: "Something went wrong" });
+  }
 });
+
 
 // ✅ Update menu item
 export const updateMenuItem = createAsyncThunk(

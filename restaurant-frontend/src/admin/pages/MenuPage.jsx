@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMenu, toggleStock } from "../features/menu/menuSlice";
+import { deleteMenuItem, fetchMenu, toggleStock } from "../features/menu/menuSlice";
 import MenuCard from "../components/MenuCard";
 import MenuFormModal from "../components/MenuFormModal";
 

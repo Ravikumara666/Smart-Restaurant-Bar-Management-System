@@ -8,26 +8,39 @@ export const getDashboardSummary = async (req, res) => {
   try {
     const { range = "today" } = req.query;
 
-    const dateFilter = {};
     const now = new Date();
+    const dateFilter = {};
+
     if (range === "today") {
-      dateFilter.createdAt = { $gte: new Date().setHours(0, 0, 0, 0) };
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      dateFilter.createdAt = { $gte: startOfDay };
     } else if (range === "week") {
-      dateFilter.createdAt = { $gte: new Date(now.setDate(now.getDate() - 7)) };
+      const lastWeek = new Date();
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      dateFilter.createdAt = { $gte: lastWeek };
     } else if (range === "month") {
-      dateFilter.createdAt = { $gte: new Date(now.setMonth(now.getMonth() - 1)) };
+      const lastMonth = new Date();
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+      dateFilter.createdAt = { $gte: lastMonth };
     } else if (range === "year") {
-      dateFilter.createdAt = { $gte: new Date(now.setFullYear(now.getFullYear() - 1)) };
+      const lastYear = new Date();
+      lastYear.setFullYear(lastYear.getFullYear() - 1);
+      dateFilter.createdAt = { $gte: lastYear };
     }
 
+    // ✅ Total orders
     const totalOrders = await Order.countDocuments(dateFilter);
+
+    // ✅ Total revenue (only Served)
     const totalRevenueAgg = await Order.aggregate([
-      { $match: dateFilter },
+      { $match: { ...dateFilter, status: "Served" } },
       { $group: { _id: null, total: { $sum: "$totalPrice" } } },
     ]);
 
     const totalRevenue = totalRevenueAgg[0]?.total || 0;
 
+    // ✅ Table info
     const totalTables = await Table.countDocuments();
     const occupiedTables = await Table.countDocuments({ status: "occupied" });
 
@@ -38,7 +51,7 @@ export const getDashboardSummary = async (req, res) => {
       occupiedTables,
     });
   } catch (err) {
-    console.error(err);
+    console.error("[DASHBOARD ERROR]", err);
     res.status(500).json({ error: "Failed to fetch summary" });
   }
 };
