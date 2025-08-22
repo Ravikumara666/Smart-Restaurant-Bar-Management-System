@@ -14,7 +14,6 @@ import { swaggerSpec } from './swagger.js';
 import AuthRouter from "./routes/routes.auth.js";
 import MenuRouter from "./routes/routes.menu.js";
 import OrderRouter from "./routes/routes.orders.js";
-import TableRouter from "./routes/routes.tables.js";
 import AdminRouter from "./routes/admin.routes.js";
 
 // Connect DB and Cron Jobs
@@ -79,7 +78,6 @@ app.set('io', io);
 app.use("/api/auth", AuthRouter);
 app.use("/api/menu", MenuRouter);
 app.use("/api/orders", OrderRouter);
-app.use("/api/tables", TableRouter);
 app.use("/api/admin", AdminRouter);
 
 // ✅ Health Check Route
