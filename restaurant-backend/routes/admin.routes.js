@@ -8,6 +8,7 @@ import { freeTable, getAllTables, getOccupiedTables } from '../controllers/admin
 import { exportSalesReport, getSalesReport } from '../controllers/admin.report.controller.js';
 import { addMenuItem, deleteMenuItem, getMenu, toggleStock, updateMenuItem } from '../controllers/admin.menu.controller.js';
 import { adminLogin } from '../controllers/admin.auth.controller.js';
+import upload from '../middleware/upload.js';
 const AdminRouter = express.Router();
 
 
