@@ -10,6 +10,7 @@ export const fetchRecentOrders = createAsyncThunk("orders/fetchRecent", async ()
 // Fetch all orders
 export const fetchAllOrders = createAsyncThunk("orders/fetchAll", async () => {
   const { data } = await adminApi.get("/orders");
+  console.log(data)
   return data;
 });
 

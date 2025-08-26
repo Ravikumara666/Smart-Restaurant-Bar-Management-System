@@ -9,6 +9,7 @@ export default function OrderTable({ orders = [] }) {
         <thead className="bg-gray-50">
           <tr>
             <th className="text-left p-3">Order #</th>
+            <th className="text-left p-3">customerName</th>
             <th className="text-left p-3">Table</th>
             <th className="text-left p-3">Items</th>
             <th className="text-left p-3">Status</th>
@@ -20,6 +21,7 @@ export default function OrderTable({ orders = [] }) {
           {orders.map((o) => (
             <tr key={o._id} className="border-t">
               <td className="p-3">{o._id.slice(-6)}</td>
+              <td className="p-3">{o.placedBy || o.placedBy}</td>
               <td className="p-3">{o.tableId.tableNumber || o.table?.tableNumber}</td>
               <td className="p-3">
                 {o.items

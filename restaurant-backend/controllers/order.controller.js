@@ -14,35 +14,20 @@ export const getAllOrders = async (req, res) => {
 
 // Create new order
 
+// controllers/order.controller.js
 export const createOrder = async (req, res) => {
   try {
-    console.log("🔹 Creating a new order...");
-    console.log("📦 Incoming Request Body:", req.body);
-
     const { tableNumber, items, totalPrice, paymentMethod, notes, placedBy } = req.body;
 
-    if (!tableNumber) {
-      console.error("❌ No table number provided");
-      return res.status(400).json({ error: "Table number is required" });
+    if (!tableNumber || !items || !items.length) {
+      return res.status(400).json({ error: "Table number and items are required" });
     }
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      console.error("❌ No items provided or items format invalid");
-      return res.status(400).json({ error: "Items are required and must be an array" });
-    }
-
-    // Step 1: Verify table exists
-    console.log(`🔍 Looking up table: "${tableNumber.trim()}"`);
     const table = await Table.findOne({ tableNumber: tableNumber.trim() });
-
     if (!table) {
-      console.error(`❌ Table "${tableNumber}" not found`);
       return res.status(400).json({ error: "Invalid table number" });
     }
 
-    console.log("✅ Table found:", table);
-
-    // Step 2: Create order
     const order = new Order({
       tableId: table._id,
       items,
@@ -52,31 +37,16 @@ export const createOrder = async (req, res) => {
       placedBy: placedBy || "",
     });
 
-    console.log("📝 Saving order:", order);
     await order.save();
-    console.log("✅ Order saved successfully");
 
-    // Step 3: Mark table as occupied
-    console.log(`🔄 Updating table "${table.tableNumber}" status to 'occupied'`);
-    await Table.findByIdAndUpdate(table._id, { status: "occupied" });
-
-    console.log("✅ Table status updated");
-
-    // ✅ Step 4: Emit socket event for real-time notifications
-    const io = req.app.get('io'); // Access io from Express app
-    io.emit("newOrder", {
-      _id: order._id,
-      tableNumber: table.tableNumber,
-      status: order.status,
-      totalPrice: order.totalPrice,
-      createdAt: order.createdAt,
+    // ✅ Update table status & set occupiedAt
+    await Table.findByIdAndUpdate(table._id, {
+      status: "occupied",
+      occupiedAt: new Date()
     });
-
-    console.log("📢 Socket event emitted: newOrder");
 
     res.status(201).json(order);
   } catch (err) {
-    console.error("🔥 Error in createOrder:", err);
     res.status(500).json({ error: "Order creation failed", details: err.message });
   }
 };

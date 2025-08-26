@@ -4,7 +4,8 @@ import { adminApi, publicApi } from "../../utils/axiosInstance";
 
 // ✅ Fetch all menu items
 export const fetchMenu = createAsyncThunk("menu/fetch", async () => {
-  const { data } = await publicApi.get("/menu");
+  const { data } = await adminApi.get("/menu");
+  console.log(data)
   return data;
 });
 
@@ -40,6 +41,8 @@ export const updateMenuItem = createAsyncThunk(
     const { data } = await adminApi.put(`/menu/${id}`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
+    console.log(formData)
+    console.log(data)
     return data;
   }
 );

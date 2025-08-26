@@ -23,7 +23,7 @@ export default function MenuFormModal({ onClose, editItem }) {
     price: editItem?.price || "",
     category: editItem?.category || "",
     spiceLevel: editItem?.spiceLevel || 0,
-    isVeg: editItem?.isVeg || false,
+    isVeg: editItem?.isVeg===true,
     image: null,
   });
 

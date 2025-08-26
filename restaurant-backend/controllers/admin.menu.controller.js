@@ -70,9 +70,19 @@ export const addMenuItem = async (req, res) => {
 // ✅ UPDATE menu item (with optional image)
 export const updateMenuItem = async (req, res) => {
   try {
-    const { name, description, price, category } = req.body;
-    let updateData = { name, description, price, category };
+ const bodyData = req.body || {};
+    const { name, description, price, category, spiceLevel, discount, isVeg } = bodyData;
 
+    let updateData = {};
+    if (name) updateData.name = name;
+    if (description) updateData.description = description;
+    if (price) updateData.price = price;
+    if (category) updateData.category = category;
+    if (spiceLevel !== undefined) updateData.spiceLevel = spiceLevel;
+    if (discount !== undefined) updateData.discount = discount;
+    if (isVeg !== undefined) updateData.isVeg = (isVeg === "true" || isVeg === true);
+
+    // Handle image upload
     const imageFile = req.file;
     if (imageFile) {
       try {
@@ -90,6 +100,9 @@ export const updateMenuItem = async (req, res) => {
         return res.status(500).json({ message: "Image upload failed" });
       }
     }
+
+    console.log("🔍 Updating Menu Item:", updateData);
+
     const updatedItem = await MenuItem.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
     });
@@ -98,6 +111,7 @@ export const updateMenuItem = async (req, res) => {
       console.error("❌ [DB UPDATE] Item not found");
       return res.status(404).json({ message: "Item not found" });
     }
+
     res.json(updatedItem);
   } catch (err) {
     console.error("❌ [UPDATE ITEM ERROR]:", err);

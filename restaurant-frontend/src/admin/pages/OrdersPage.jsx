@@ -18,7 +18,7 @@ export default function OrdersPage() {
   );
 
   const [tab, setTab] = useState("New");
-  const [historyFilter, setHistoryFilter] = useState("all");
+  const [historyFilter, setHistoryFilter] = useState("today");
   const [customDate, setCustomDate] = useState("");
 
   // ✅ Fetch orders initially

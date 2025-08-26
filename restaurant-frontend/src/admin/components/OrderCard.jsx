@@ -93,6 +93,8 @@ console.log(bill)
       <div className="flex justify-between items-center">
         <div className="font-semibold">
           Table: {tableName || order.tableId?.tableNumber}
+          <br></br>
+          Customer : {order?.placedBy}
         </div>
         <div className="text-sm px-2 py-1 rounded-lg bg-gray-100">{localStatus}</div>
       </div>
@@ -104,6 +106,9 @@ console.log(bill)
           </li>
         ))}
       </ul>
+      <div className="font-semibold">
+          Instructions : {order?.notes}
+        </div>
 
       <div className="flex items-center justify-between mt-3">
         <div className="font-semibold">₹{totalPrice}</div>

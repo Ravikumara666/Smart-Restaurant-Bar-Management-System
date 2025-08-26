@@ -1,20 +1,26 @@
-import cron from 'node-cron';
-import Table from '../models/Table.js';
+import cron from "node-cron";
+import Table from "../models/Table.js";
 
-
-cron.schedule('*/10 * * * *', async () => {
-  const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+// Run every 10 minutes
+cron.schedule("*/10 * * * *", async () => {
+  const now = new Date();
+  const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
 
   try {
-    await Table.updateMany(
+    const updated = await Table.updateMany(
       {
-        isOccupied: true,
-        sessionStart: { $lte: twoHoursAgo }
+        status: "occupied",
+        occupiedAt: { $lt: twoHoursAgo }
       },
-      { isOccupied: false }
+      {
+        $set: { status: "available", occupiedAt: null }
+      }
     );
-    console.log("✅ Tables released after 2 hours of inactivity.");
-  } catch (err) {
-    console.error("❌ Error resetting tables:", err);
+
+    if (updated.modifiedCount > 0) {
+      console.log(`✅ Auto-freed ${updated.modifiedCount} tables`);
+    }
+  } catch (error) {
+    console.error("❌ Error in auto-free job:", error);
   }
 });

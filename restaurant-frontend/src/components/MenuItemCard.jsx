@@ -99,7 +99,7 @@ const MenuItemCard = ({ item }) => {
           )}
 
           {/* Spice Level */}
-          {item.spiceLevel && (
+          {item.spiceLevel!=0 && (
             <div className="flex items-center">
               {[...Array(3)].map((_, i) => (
                 <div

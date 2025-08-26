@@ -26,9 +26,9 @@ const navigate=useNavigate()
         console.log("set the category")
         
         // Set first category as default if no category is selected
-        if (uniqueCategories.length > 0 && !selectedCategory) {
-          setSelectedCategory(uniqueCategories[0]);
-        }
+        // if (uniqueCategories.length > 0 && !selectedCategory) {
+        //   setSelectedCategory(uniqueCategories[0]);
+        // }
       } catch (error) {
         console.error("Error fetching menu:", error);
       } finally {
