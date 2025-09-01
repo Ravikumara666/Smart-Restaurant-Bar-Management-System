@@ -3,14 +3,13 @@ import express from 'express';
 import { isAdmin } from '../middleware/auth.middleware.js';
 import { getDashboardStats, getDashboardSummary, getRevenueStats, getTopItems } from '../controllers/admin.dashboard.controller.js';
 
-import { generateBill, getAllOrders, getRecentOrders, updateOrderStatus } from '../controllers/admin.order.controller.js';
+import { generateBill, getAllOrders, getRecentOrders, markOrderComplete, updateOrderStatus } from '../controllers/admin.order.controller.js';
 import { addTable, deleteTable, freeTable, getAllTables, getOccupiedTables, updateTable } from '../controllers/admin.table.controller.js';
 import { exportSalesReport, getSalesReport } from '../controllers/admin.report.controller.js';
 import { addMenuItem, deleteMenuItem, getMenu, toggleStock, updateMenuItem } from '../controllers/admin.menu.controller.js';
 import { adminLogin } from '../controllers/admin.auth.controller.js';
 import upload from '../middleware/upload.js';
 const AdminRouter = express.Router();
-
 
 
 AdminRouter.post("/auth/login", adminLogin);
@@ -25,6 +24,7 @@ AdminRouter.get("/orders", getAllOrders);
 AdminRouter.get("/orders/recent", getRecentOrders);
 AdminRouter.put("/orders/:id/status", updateOrderStatus);
 AdminRouter.get("/orders/:id/bill", generateBill);
+AdminRouter.patch("/orders/:id/complete", markOrderComplete);
 
 // ------------------ TABLES ------------------ //
 AdminRouter.get("/tables", getAllTables);

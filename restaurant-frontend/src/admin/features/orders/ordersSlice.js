@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchRecentOrders, fetchAllOrders, fetchOrderBill } from "./ordersThunks";
+import { fetchRecentOrders, fetchAllOrders, fetchOrderBill, markOrderCompleteThunk } from "./ordersThunks";
 
 const initialState = {
   recent: [],
@@ -18,6 +18,15 @@ const ordersSlice = createSlice({
     },
     clearBill(state) {
       state.bill = null;
+    },
+    markCompleteLocal(state, action) {
+      const id = action.payload;
+      const updateList = (list) => {
+        const order = list.find((o) => o._id === id);
+        if (order) order.status = "completed";
+      };
+      updateList(state.recent);
+      updateList(state.all);
     },
   },
   extraReducers: (builder) => {
@@ -62,9 +71,19 @@ const ordersSlice = createSlice({
 
         updateList(state.recent);
         updateList(state.all);
+      })
+
+      .addCase(markOrderCompleteThunk.fulfilled, (state, action) => {
+        const id = action.payload._id;
+        const updateList = (list) => {
+          const order = list.find((o) => o._id === id);
+          if (order) order.status = "completed";
+        };
+        updateList(state.recent);
+        updateList(state.all);
       });
   },
 });
 
-export const { setBill, clearBill } = ordersSlice.actions;
+export const { setBill, clearBill, markCompleteLocal } = ordersSlice.actions;
 export default ordersSlice.reducer;

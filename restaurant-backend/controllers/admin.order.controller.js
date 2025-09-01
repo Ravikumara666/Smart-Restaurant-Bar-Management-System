@@ -18,7 +18,7 @@ export const getAllOrders = async (req, res) => {
       query.createdAt = { $gte: today, $lt: tomorrow };
     }
 
-    const orders = await Order.find(query).populate("tableId items.menuItemId");
+    const orders = await Order.find(query).populate("tableId items.menuItemId additionalItems.menuItemId");
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch orders", details: err.message });
@@ -59,62 +59,134 @@ export const updateOrderStatus = async (req, res) => {
 
 // ✅ Generate Bill for an order
 // controllers/admin.order.controller.js
+// export const generateBill = async (req, res) => {
+//   try {
+//     const order = await Order.findById(req.params.id).populate("items.menuItemId");
+//     if (!order) return res.status(404).json({ message: "Order not found" });
+
+//     const items = order.items.map(i => ({
+//       name: i.menuItemId?.name || i.name,
+//       quantity: i.quantity,
+//       price: i.menuItemId?.price || i.price,
+//       subtotal: (i.menuItemId?.price || i.price) * i.quantity
+//     }));
+
+//     const subtotal = items.reduce((acc, i) => acc + i.subtotal, 0);
+//     const taxRate = 0.18;
+//     const tax = +(subtotal * taxRate).toFixed(2);
+//     const grandTotal = +(subtotal + tax).toFixed(2);
+
+//     res.json({
+//       orderId: order._id,
+//       table: order.tableId,
+//       paymentMethod: order.paymentMethod,
+//       items,
+//       totals: { subtotal, tax, grandTotal },
+//       generatedAt: new Date()
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
 export const generateBill = async (req, res) => {
   try {
+    // Define categories here
+    const drinkCategories = [
+      "Wine", "Whiskey", "Beer", "Cocktails", "Mocktails",
+      "Hot Drinks", "Beverages"
+    ];
+
+    const foodCategories = [
+      "Starters", "Veg Dishes", "Chicken Dishes", "Mutton Dishes",
+      "Main Course", "Desserts","Cold Drinks"
+    ];
+
     const order = await Order.findById(req.params.id).populate("items.menuItemId");
     if (!order) return res.status(404).json({ message: "Order not found" });
 
     const items = order.items.map(i => ({
       name: i.menuItemId?.name || i.name,
+      category: i.menuItemId?.category || "",
       quantity: i.quantity,
       price: i.menuItemId?.price || i.price,
       subtotal: (i.menuItemId?.price || i.price) * i.quantity
     }));
 
-    const subtotal = items.reduce((acc, i) => acc + i.subtotal, 0);
-    const taxRate = 0.18;
-    const tax = +(subtotal * taxRate).toFixed(2);
-    const grandTotal = +(subtotal + tax).toFixed(2);
+    const foodItems = items.filter(i => foodCategories.includes(i.category));
+    const drinkItems = items.filter(i => drinkCategories.includes(i.category));
 
+    const foodSubtotal = foodItems.reduce((sum, i) => sum + i.subtotal, 0);
+    const drinkSubtotal = drinkItems.reduce((sum, i) => sum + i.subtotal, 0);
+
+    const cgst = +(foodSubtotal * 0.025).toFixed(2);
+    const sgst = +(foodSubtotal * 0.025).toFixed(2);
+    const gstTotal = cgst + sgst;
+    const grandTotal = +(foodSubtotal + drinkSubtotal + gstTotal).toFixed(2);
+    const tableInfo = await Table.findById(order.tableId);
     res.json({
       orderId: order._id,
-      table: order.tableId,
+      table: tableInfo.tableNumber,
       paymentMethod: order.paymentMethod,
       items,
-      totals: { subtotal, tax, grandTotal },
+      totals: { foodSubtotal, drinkSubtotal, cgst, sgst, gstTotal, grandTotal },
       generatedAt: new Date()
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-// export const generateBill = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const order = await Order.findById(id).populate("items.menuItemId");
+export const markOrderComplete = async (req, res) => {
+  try {
+    console.log("its coming in mark order complerte")
+    const { id } = req.params;
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: "Order not found" });
 
-//     if (!order) return res.status(404).json({ error: "Order not found" });
+    // order.status = "completed";
+    // await order.save();
+console.log("trying to free table")
+    // ✅ Free the table
+    await Table.findByIdAndUpdate(order.tableId, {
+      status: "available",
+      occupiedAt: null,
+    });
+    console.log("table set free")
 
-//     // Mark table as free after billing
-//     await Table.findByIdAndUpdate(order.tableId, { status: "available", isOccupied: false });
+    const io = req.app.get("io");
+    if (io) io.emit("orderCompleted", order);
 
-//     // Example bill data
-//     const bill = {
-//       orderId: order._id,
-//       table: order.tableId,
-//       items: order.items.map((i) => ({
-//         name: i.menuItemId.name,
-//         quantity: i.quantity,
-//         price: i.menuItemId.price,
-//         subtotal: i.quantity * i.menuItemId.price,
-//       })),
-//       total: order.totalPrice,
-//       paymentMethod: order.paymentMethod,
-//       generatedAt: new Date(),
-//     };
+    res.status(200).json({ message: "Order marked as complete", order });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to mark order complete", details: err.message });
+  }
+};
 
-//     res.json(bill);
-//   } catch (err) {
-//     res.status(500).json({ error: "Failed to generate bill" });
-//   }
-// };
+export const rejectAdditionalItems = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rejectIds } = req.body; // array of item IDs
+
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    // Remove rejected items
+    order.items = order.items.filter(i => !rejectIds.includes(i._id.toString()));
+
+    // Recalculate total
+    let newTotal = 0;
+    for (const i of order.items) {
+      const menuItem = await MenuItem.findById(i.menuItemId);
+      newTotal += (menuItem.price || 0) * (i.quantity || 1);
+    }
+    order.totalPrice = newTotal;
+
+    await order.save();
+
+    const io = req.app.get("io");
+    if (io) io.emit("orderUpdated", order);
+
+    res.status(200).json(order);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to reject additional items", details: err.message });
+  }
+};

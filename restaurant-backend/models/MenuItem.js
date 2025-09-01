@@ -6,17 +6,22 @@ const MenuItemSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: [
-      "Hot Drinks",
-      "Cold Drinks",
-      "Chicken Dishes",
-      "Mutton Dishes",
-      "Veg Dishes",
-      "Starters",
-      "Main Course",
-      "Desserts",
-      "Beverages"
-    ],
+enum: [
+  "Wine",
+  "Whiskey",
+  "Beer",
+  "Cocktails",
+  "Mocktails",
+  "Hot Drinks",
+  "Cold Drinks",
+  "Beverages",
+  "Starters",
+  "Veg Dishes",
+  "Chicken Dishes",
+  "Mutton Dishes",
+  "Main Course",
+  "Desserts"
+],
   },
   spiceLevel: { type: Number, default: 0, min: 0, max: 3 },
   discount: { type: Number, default: null },

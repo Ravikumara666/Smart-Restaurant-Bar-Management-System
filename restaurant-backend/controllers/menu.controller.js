@@ -13,6 +13,19 @@ export const getAllMenuItems = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch menu items" });
   }
 };
+export const getCatogeries=async(req,res)=>{
+  try
+  {
+      const categories = MenuItem.schema.path("category").enumValues;
+      console.log(categories)
+      res.status(200).json(categories);
+  }
+  catch(err)
+  {
+    res.status(500).json({err:"failed to fetch the catogeries"})
+  }
+
+}
 
 // Add a menu item with image
 

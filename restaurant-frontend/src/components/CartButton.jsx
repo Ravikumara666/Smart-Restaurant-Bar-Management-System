@@ -8,6 +8,8 @@ const CartButton = () => {
   const navigate = useNavigate();
   const cartItems = useSelector((state) => state.cart.items);
   
+  const existingOrderId = localStorage.getItem("currentOrderId");
+  
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -17,7 +19,7 @@ const CartButton = () => {
     <>
       {/* Desktop/Tablet Cart Button */}
       <div
-        onClick={() => navigate("/checkout")}
+        onClick={() => navigate("/checkout", { state: { orderId: existingOrderId } })}
         className="hidden sm:flex fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-4 rounded-full font-bold text-base cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out active:scale-95 z-50 items-center space-x-3 group"
         role="button"
         tabIndex={0}
@@ -25,7 +27,7 @@ const CartButton = () => {
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            navigate("/checkout");
+            navigate("/checkout", { state: { orderId: existingOrderId } });
           }
         }}
       >
@@ -55,7 +57,7 @@ const CartButton = () => {
 
       {/* Mobile Cart Button */}
       <div
-        onClick={() => navigate("/checkout")}
+        onClick={() => navigate("/checkout", { state: { orderId: existingOrderId } })}
         className="sm:hidden fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white px-4 py-3 rounded-full font-bold text-sm cursor-pointer shadow-lg active:shadow-md transition-all duration-200 ease-in-out active:scale-95 z-50 flex items-center space-x-2 group max-w-xs"
         role="button"
         tabIndex={0}
@@ -63,7 +65,7 @@ const CartButton = () => {
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            navigate("/checkout");
+            navigate("/checkout", { state: { orderId: existingOrderId } });
           }
         }}
       >

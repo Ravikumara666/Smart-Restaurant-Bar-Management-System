@@ -1,5 +1,5 @@
 import express from 'express';
-import { addMenuItem, deleteMenuItem, getAllMenuItems, toggleMenuAvailability, updateMenuItem, updateMenuItemImage } from '../controllers/menu.controller.js';
+import { addMenuItem, deleteMenuItem, getAllMenuItems, getCatogeries, toggleMenuAvailability, updateMenuItem, updateMenuItemImage } from '../controllers/menu.controller.js';
 import upload from '../middleware/upload.js';
 const MenuRouter = express.Router();
 
@@ -14,6 +14,7 @@ const MenuRouter = express.Router();
  */
 // Sample route for getting the menu
 MenuRouter.get('/',getAllMenuItems);
+MenuRouter.get('/categories',getCatogeries);
 MenuRouter.post('/',upload.single("image"),addMenuItem);
 MenuRouter.put('/:id/image', upload.single('image'), updateMenuItemImage);
 MenuRouter.delete('/:id',deleteMenuItem);

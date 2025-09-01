@@ -45,25 +45,25 @@ const OrderStatusPage = () => {
       message: 'Order confirmed by restaurant',
       progress: 25
     },
-    Preparing: { 
+    preparing: { 
       icon: ChefHat, 
       color: 'text-orange-600 bg-orange-100', 
       message: 'Your delicious meal is being prepared',
       progress: 45
     },
-    Ready: { 
+    ready: { 
       icon: CheckCircle, 
       color: 'text-green-600 bg-green-100', 
       message: 'Order ready for pickup/delivery',
       progress: 90
     },
-    Served: { 
+    served: { 
       icon: CheckCircle, 
       color: 'text-green-600 bg-green-100', 
       message: 'Order completed successfully',
       progress: 100
     },
-    Cancelled: { 
+    cancelled: { 
       icon: AlertCircle, 
       color: 'text-red-600 bg-red-100', 
       message: 'Order has been cancelled',
@@ -107,7 +107,7 @@ const OrderStatusPage = () => {
       setOrder(prev => ({ ...prev, paymentMethod: method }));
       
       if (method === 'cash') {
-        alert("Cash payment selected! Please pay when your order arrives.");
+        alert("Cash payment selected! Please pay in counter.");
       } else {
         alert("Online payment selected! Redirecting to payment gateway...");
         // Here you would integrate with payment gateway
@@ -170,11 +170,12 @@ const OrderStatusPage = () => {
     );
   }
 
-  console.log(order.status)
+  console.log("order")
+  console.log(order)
   const currentStatus = statusConfig[order.status] || statusConfig.pending;
-  console.log(currentStatus)
+  // console.log(currentStatus)
   const StatusIcon = currentStatus.icon;
-  console.log(StatusIcon)
+  // console.log(StatusIcon)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -262,7 +263,6 @@ const OrderStatusPage = () => {
             })}
           </div>
         </div>
-
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left Column - Order Details */}
           <div className="lg:col-span-2 space-y-6">
@@ -294,9 +294,49 @@ const OrderStatusPage = () => {
                     </div>
                   </div>
                 ))}
+                {/* Render additionalItems if present */}
+                {order.additionalItems && order.additionalItems.length > 0 && (
+                  order.additionalItems.map((item, idx) => (
+                    <div key={`add-${idx}`} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900">
+                          {item.menuItemId?.name || "Menu Item"}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          Quantity: {item.quantity}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">
+                          ₹{(item.menuItemId?.price || 0) * item.quantity}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          ₹{item.menuItemId?.price || 0} each
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
-
+            
+            {/* Add More Items Button */}
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Add More Items</h3>
+              {order.status && order.status.toLowerCase() === "completed" ? (
+                <div className="p-4 bg-green-50 text-green-700 rounded-lg text-center">
+                  Order Completed. Please start a new order.
+                </div>
+              ) : (
+                <button
+                  onClick={() => navigate("/", { state: { orderId: order._id } })}
+                  disabled={order.status && order.status.toLowerCase() === "completed"}
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Add More Items
+                </button>
+              )}
+            </div>
             {/* Customer Information */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -373,7 +413,7 @@ const OrderStatusPage = () => {
                   </div>
                   <p className="text-sm text-green-600 mt-1">
                     {order.paymentMethod === 'cash' 
-                      ? 'Please pay when your order arrives' 
+                      ? 'Please pay in counter' 
                       : 'Payment will be processed shortly'
                     }
                   </p>
@@ -419,15 +459,6 @@ const OrderStatusPage = () => {
               </h3>
               
               <div className="space-y-2">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>₹{(order.totalPrice / 1.18).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Tax (18% GST)</span>
-                  <span>₹{(order.totalPrice - (order.totalPrice / 1.18)).toFixed(2)}</span>
-                </div>
-                <hr className="my-2" />
                 <div className="flex justify-between text-lg font-semibold text-gray-900">
                   <span>Total</span>
                   <span>₹{order.totalPrice}</span>

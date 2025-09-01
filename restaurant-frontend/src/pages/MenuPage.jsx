@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Menu, X, Home, ShoppingCart, User, LogIn } from 'lucide-react';
 import MenuItemCard from "../components/MenuItemCard";
-import { getMenuItems } from "../utils/menuApi";
+import { getCatogeries, getMenuItems } from "../utils/menuApi";
 import CartButton from "../components/CartButton";
 import { useNavigate } from "react-router-dom";
 
@@ -19,11 +19,15 @@ const navigate=useNavigate()
         setLoading(true);
         console.log("start")
         const data = await getMenuItems();
+        console.log(data)
         setMenu(data);
-        console.log("set data in menu")
-        const uniqueCategories = [...new Set(data.map(item => item.category))];
-        setCategories(uniqueCategories);
+        console.log("seted data in menu")
+
+        const categoriesAPI= await getCatogeries()
+        console.log(categories)
+        setCategories(categoriesAPI);
         console.log("set the category")
+        // console.log(uniqueCategories)
         
         // Set first category as default if no category is selected
         // if (uniqueCategories.length > 0 && !selectedCategory) {

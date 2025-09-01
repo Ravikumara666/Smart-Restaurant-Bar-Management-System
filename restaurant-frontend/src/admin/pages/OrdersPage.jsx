@@ -29,17 +29,28 @@ export default function OrdersPage() {
 
   // ✅ Listen for new order event via socket
   useEffect(() => {
-    socket.on("new-order", () => {
-      console.log("New order received → Refreshing orders...");
+    // Listen for new order creation
+    socket.on("orderCreated", (order) => {
+      console.log("📢 New order received:", order);
+      setTab("New")
       dispatch(fetchRecentOrders());
       dispatch(fetchAllOrders());
     });
 
-    return () => {
-      socket.off("new-order"); // ✅ Clean up listener
-    };
-  }, [dispatch]);
+    // Listen for order updates (items added)
+    socket.on("orderUpdated", (update) => {
+      setTab("Current")
+      console.log("📢 Order updated:", update);
+      dispatch(fetchRecentOrders());
+      dispatch(fetchAllOrders());
 
+    });
+
+    return () => {
+      socket.off("orderCreated");
+      socket.off("orderUpdated");
+    };
+  }, []);
   const filtered = useMemo(() => {
     const normalize = (s) => (s || "").toLowerCase();
     let result = [];
@@ -48,11 +59,11 @@ export default function OrdersPage() {
       result = recent.filter((o) => normalize(o.status) === "pending");
     } else if (tab === "Current") {
       result = all.filter((o) =>
-        ["preparing", "ready"].includes(normalize(o.status))
+        ["preparing", "ready","served"].includes(normalize(o.status))
       );
     } else {
       result = all.filter((o) =>
-        ["served", "cancelled"].includes(normalize(o.status))
+        ["completed", "cancelled"].includes(normalize(o.status))
       );
 
       // ✅ Apply history filters
@@ -92,6 +103,9 @@ useEffect(() => {
     socket.off("newOrder"); // ✅ Clean up
   };
 }, [dispatch]);
+console.log("recent orders")
+console.log(recent)
+
 
   return (
     <div className="p-6 space-y-6">

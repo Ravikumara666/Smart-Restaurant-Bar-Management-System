@@ -11,3 +11,16 @@ export const getMenuItems = async () => {
     throw new Error(error.response?.data?.message || "Failed to fetch menu items");
   }
 };
+
+export const getCatogeries=async ()=>{
+  try{
+    const res =await axios.get(`${API_BASE_URL}/menu/categories`);
+    console.log("this is get catogerois")
+    console.log(res.data)
+    return res.data;
+  }
+  catch(error)
+  {
+    throw new Error(error.response?.data?.message || "Failed to fetch catogories");
+  }
+}

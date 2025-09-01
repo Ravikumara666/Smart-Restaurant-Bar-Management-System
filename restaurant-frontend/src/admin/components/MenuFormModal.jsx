@@ -1,21 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addMenuItem, updateMenuItem } from "../features/menu/menuSlice";
+import { getCatogeries } from "../../utils/menuApi";
 
-const categories = [
-  "Hot Drinks",
-  "Cold Drinks",
-  "Chicken Dishes",
-  "Mutton Dishes",
-  "Veg Dishes",
-  "Starters",
-  "Main Course",
-  "Desserts",
-  "Beverages"
-];
 
 export default function MenuFormModal({ onClose, editItem }) {
   const dispatch = useDispatch();
+  const [categories,setCategories]=useState([])
+
+ useEffect(() => {
+    (async () => {
+      try {
+
+        const categoriesAPI= await getCatogeries()
+        console.log(categoriesAPI)
+        setCategories(categoriesAPI);
+        console.log("set the category")
+      } catch (error) {
+        console.error("Error fetching menu:", error);
+      }
+    })();
+  }, []);
 
   const [formData, setFormData] = useState({
     name: editItem?.name || "",

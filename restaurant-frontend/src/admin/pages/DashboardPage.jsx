@@ -36,6 +36,8 @@ export default function DashboardPage() {
         setSummary(s1.data);
         setStats(s2.data);
         setRevenue(r.data);
+        console.log(s1.data)
+        console.log(s2.data)
         setTopItems(
   t.data.map((item) => ({
     name: item.name,

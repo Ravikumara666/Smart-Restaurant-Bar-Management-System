@@ -1,43 +1,53 @@
 import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import NotificationBell from "./NotificationBell";
-
-const socket = io(import.meta.env.VITE_BACKEND_URL, {
-  transports: ["websocket"],
-});
+import socket from "../utils/socket";
 
 export default function NotificationWrapper() {
   const [count, setCount] = useState(0);
-  const [newOrders, setNewOrders] = useState([]);
-  const [isOpen, setIsOpen] = useState(false); // Toggle dropdown
+  const [notifications, setNotifications] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // ✅ Listen for newOrder event from backend
-    socket.on("newOrder", (order) => {
+    // Listen for new order creation
+    socket.on("orderCreated", (order) => {
       console.log("📢 New order received:", order);
-      setNewOrders((prev) => [order, ...prev]);
+      setNotifications((prev) => [
+        { type: "created", ...order },
+        ...prev
+      ]);
+      setCount((prev) => prev + 1);
+    });
+
+    // Listen for order updates (items added)
+    socket.on("orderUpdated", (update) => {
+      console.log("📢 Order updated:", update);
+      setNotifications((prev) => [
+        { type: "updated", ...update },
+        ...prev
+      ]);
       setCount((prev) => prev + 1);
     });
 
     return () => {
-      socket.off("newOrder");
+      socket.off("orderCreated");
+      socket.off("orderUpdated");
     };
   }, []);
 
   const handleClick = () => {
-    setIsOpen((prev) => !prev); // Toggle dropdown
+    setIsOpen((prev) => !prev);
     setCount(0);
   };
 
   const clearNotifications = () => {
-    setNewOrders([]);
+    setNotifications([]);
     setIsOpen(false);
   };
 
   return (
     <div className="relative">
       <NotificationBell count={count} onClick={handleClick} />
-      {isOpen && newOrders.length > 0 && (
+      {isOpen && notifications.length > 0 && (
         <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg border rounded-lg z-50">
           <div className="flex justify-between items-center p-2 border-b">
             <span className="font-semibold">Notifications</span>
@@ -49,17 +59,29 @@ export default function NotificationWrapper() {
             </button>
           </div>
           <ul className="max-h-60 overflow-y-auto divide-y divide-gray-200">
-            {newOrders.map((order, index) => (
+            {notifications.map((note, index) => (
               <li key={index} className="p-2 text-sm flex justify-between">
                 <div>
-                  <strong>{order.tableNumber}</strong> – ₹{order.totalPrice}
-                  <br />
-                  <span className="text-gray-500">{order.status}</span>
+                  {note.type === "created" ? (
+                    <>
+                      <strong>New Order:</strong> Table {note.tableNumber} – ₹{note.totalPrice}
+                      <br />
+                      <span className="text-gray-500">{note.status}</span>
+                    </>
+                  ) : (
+                    <>
+                      <strong>Order Updated:</strong> #{note.orderId}
+                      <br />
+                      <span className="text-gray-500">
+                        +{note.addedItemsCount} items | ₹{note.newTotalPrice}
+                      </span>
+                    </>
+                  )}
                 </div>
                 <button
                   className="text-red-500 hover:text-red-700"
                   onClick={() =>
-                    setNewOrders((prev) => prev.filter((_, i) => i !== index))
+                    setNotifications((prev) => prev.filter((_, i) => i !== index))
                   }
                 >
                   ✕

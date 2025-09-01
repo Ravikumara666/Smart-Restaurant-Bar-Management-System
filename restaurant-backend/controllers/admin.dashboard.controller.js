@@ -34,7 +34,7 @@ export const getDashboardSummary = async (req, res) => {
 
     // ✅ Total revenue (only Served)
     const totalRevenueAgg = await Order.aggregate([
-      { $match: { ...dateFilter, status: "Served" } },
+      { $match: { ...dateFilter, status: "completed" } },
       { $group: { _id: null, total: { $sum: "$totalPrice" } } },
     ]);
 
