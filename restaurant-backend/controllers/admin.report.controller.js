@@ -7,23 +7,41 @@ const getDateRange = (range) => {
   let startDate;
 
   switch (range) {
-    case "1 Week":
-      startDate = new Date(now.setDate(now.getDate() - 7));
+    case "1 Week": {
+      const date = new Date(now.getTime());
+      date.setDate(date.getDate() - 7);
+      startDate = date;
       break;
-    case "1 Month":
-      startDate = new Date(now.setMonth(now.getMonth() - 1));
+    }
+    case "1 Month": {
+      const date = new Date(now.getTime());
+      date.setMonth(date.getMonth() - 1);
+      startDate = date;
       break;
-    case "6 Months":
-      startDate = new Date(now.setMonth(now.getMonth() - 6));
+    }
+    case "6 Months": {
+      const date = new Date(now.getTime());
+      date.setMonth(date.getMonth() - 6);
+      startDate = date;
       break;
-    case "1 Year":
-      startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+    }
+    case "1 Year": {
+      const date = new Date(now.getTime());
+      date.setFullYear(date.getFullYear() - 1);
+      startDate = date;
       break;
-    case "5 Years":
-      startDate = new Date(now.setFullYear(now.getFullYear() - 5));
+    }
+    case "5 Years": {
+      const date = new Date(now.getTime());
+      date.setFullYear(date.getFullYear() - 5);
+      startDate = date;
       break;
-    default:
-      startDate = new Date(now.setMonth(now.getMonth() - 1)); // Default 1 month
+    }
+    default: {
+      const date = new Date(now.getTime());
+      date.setMonth(date.getMonth() - 1); // Default 1 month
+      startDate = date;
+    }
   }
   return startDate;
 };
@@ -62,7 +80,10 @@ export const getSalesReport = async (req, res) => {
 // ✅ Export Sales Report as CSV
 export const exportSalesReport = async (req, res) => {
   try {
-    const orders = await Order.find().populate("tableId");
+    const { range = "1 Month" } = req.query;
+    const startDate = getDateRange(range);
+
+    const orders = await Order.find({ createdAt: { $gte: startDate } }).populate("tableId");
 
     const formattedOrders = orders.map(order => {
       const createdAt = new Date(order.createdAt);
@@ -96,12 +117,25 @@ export const exportSalesReport = async (req, res) => {
       };
     });
 
+    // Calculate total revenue
+    const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+    // Append summary row
+    formattedOrders.push({
+      date: "TOTAL",
+      customerName: "",
+      time: "",
+      price: `₹${totalRevenue.toFixed(2)}`,
+      paymentMethod: "",
+      status: ""
+    });
+
     const fields = ["date", "customerName", "time", "price", "paymentMethod", "status"];
     const parser = new Parser({ fields });
     const csv = parser.parse(formattedOrders);
 
     res.header("Content-Type", "text/csv");
-    res.attachment("sales_report.csv");
+    const safeRange = range.replace(/\s+/g, "_");
+    res.attachment(`sales_report_${safeRange}.csv`);
     return res.send(csv);
   } catch (err) {
     console.error("❌ [EXPORT CSV ERROR]:", err);

@@ -20,6 +20,7 @@ export default function OrdersPage() {
   const [tab, setTab] = useState("New");
   const [historyFilter, setHistoryFilter] = useState("today");
   const [customDate, setCustomDate] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // ✅ Fetch orders initially
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function OrdersPage() {
   useEffect(() => {
     // Listen for new order creation
     socket.on("orderCreated", (order) => {
-      console.log("📢 New order received:", order);
+      // console.log("📢 New order received:", order);
       setTab("New")
       dispatch(fetchRecentOrders());
       dispatch(fetchAllOrders());
@@ -40,7 +41,7 @@ export default function OrdersPage() {
     // Listen for order updates (items added)
     socket.on("orderUpdated", (update) => {
       setTab("Current")
-      console.log("📢 Order updated:", update);
+      // console.log("📢 Order updated:", update);
       dispatch(fetchRecentOrders());
       dispatch(fetchAllOrders());
 
@@ -59,11 +60,11 @@ export default function OrdersPage() {
       result = recent.filter((o) => normalize(o.status) === "pending");
     } else if (tab === "Current") {
       result = all.filter((o) =>
-        ["preparing", "ready","served"].includes(normalize(o.status))
+        ["preparing", "ready", "served", "completed"].includes(normalize(o.status)) && normalize(o.paymentStatus) === "pending"
       );
     } else {
       result = all.filter((o) =>
-        ["completed", "cancelled"].includes(normalize(o.status))
+        ["completed", "cancelled"].includes(normalize(o.status)) && normalize(o.paymentStatus) === "paid"
       );
 
       // ✅ Apply history filters
@@ -88,13 +89,30 @@ export default function OrdersPage() {
       }
     }
 
+    // Filter by search term
+    if (searchTerm.trim() !== "") {
+      const term = normalize(searchTerm);
+      result = result.filter((o) => {
+        const customerName = normalize(o.customerName);
+        const tableNumber = o.tableId && o.tableId.tableNumber ? normalize(String(o.tableId.tableNumber)) : "";
+        const totalPrice = normalize(String(o.totalPrice));
+        const placedBy = normalize(o.placedBy);
+        return (
+          customerName.includes(term) ||
+          tableNumber.includes(term) ||
+          totalPrice.includes(term) ||
+          placedBy.includes(term)
+        );
+      });
+    }
+
     return result.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-  }, [tab, recent, all, historyFilter, customDate]);
+  }, [tab, recent, all, historyFilter, customDate, searchTerm]);
 
   // ✅ Corrected listener in OrdersPage.jsx
 useEffect(() => {
   socket.on("newOrder", (order) => {
-    console.log("✅ New order received → Refreshing orders...");
+
     dispatch(fetchRecentOrders());
     dispatch(fetchAllOrders());
   });
@@ -103,9 +121,6 @@ useEffect(() => {
     socket.off("newOrder"); // ✅ Clean up
   };
 }, [dispatch]);
-console.log("recent orders")
-console.log(recent)
-
 
   return (
     <div className="p-6 space-y-6">
@@ -122,6 +137,15 @@ console.log(recent)
             {t}
           </button>
         ))}
+        <div className="ml-auto">
+          <input
+            type="text"
+            placeholder="Search orders..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-3 py-2 border rounded"
+          />
+        </div>
       </div>
 
       {/* ✅ History Filter Buttons */}

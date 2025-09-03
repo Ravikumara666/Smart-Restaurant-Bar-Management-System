@@ -14,7 +14,8 @@ export default function Header() {
     dispatch(logout());
 
     // ✅ Remove token from localStorage
-    localStorage.removeItem("token");
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("Token");
 
     // ✅ Navigate to login page
     navigate("/"); // or "/login" based on your route

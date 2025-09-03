@@ -10,6 +10,7 @@ import TablesPage from "./admin/pages/TablesPage";
 import MenuPage from "./admin/pages/MenuPage";
 import DashboardPage from "./admin/pages/DashboardPage";
 import SalesPage from "./admin/pages/SalesPage";
+import OnlinePayments from "./admin/pages/OnlinePayments.jsx";
 
 
 const AdminApp = () => {
@@ -31,6 +32,7 @@ const AdminApp = () => {
             <Route path="tables" element={<TablesPage />} />
             <Route path="menu" element={<MenuPage />} />
             <Route path="sales" element={<SalesPage/>} />
+            <Route path="payments" element={<OnlinePayments/>}/>
 
             {/* Fallback for wrong routes */}
             <Route path="*" element={<p>404 - Page not found</p>} />

@@ -16,6 +16,8 @@ export default function OrderCard({ order }) {
   const [bill, setBill] = useState(null);
   const [message, setMessage] = useState(null);
   const [hasNewItems, setHasNewItems] = useState(additionalItems.length > 0); // ✅ Show banner if items exist
+  const [loadingPayment, setLoadingPayment] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const showMessage = (msg) => {
     setMessage(msg);
@@ -26,7 +28,6 @@ export default function OrderCard({ order }) {
   useEffect(() => {
     socket.on("orderUpdated", (data) => {
       if (data.orderId === _id && data.addedItemsCount > 0) {
-        console.log("📦 Order updated for this card:", data);
 
         const itemDetails = (data.newAdditionalItems || [])
           .map(i => `${i.quantity}×${i.name}`)
@@ -80,13 +81,36 @@ export default function OrderCard({ order }) {
     setLocalStatus("completed");
     dispatch(updateOrderStatusThunk({ id: _id, status: "completed" }));
     dispatch(markOrderCompleteThunk(_id));
-    console.log("markde order completed")
     showMessage("✅ Order completed");
   };
 
   const generateBill = async () => {
     const result = await dispatch(fetchOrderBill(_id)).unwrap();
     setBill(result);
+  };
+
+  const handleMarkAsPaid = async () => {
+    if (!window.confirm("Are you sure you want to mark this order as Paid?")) return;
+    try {
+      setLoadingPayment(true);
+      const response = await fetch(`${ADMIN_BASE_URL}/orders/${_id}/payment`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentStatus: "Paid" })
+      });
+      if (response.ok) {
+        // Update local order paymentStatus
+        order.paymentStatus = "Paid";
+        showMessage("✅ Payment marked as Paid");
+      } else {
+        showMessage("❌ Failed to mark as Paid");
+      }
+    } catch (err) {
+      console.error("❌ Failed to mark payment:", err);
+      showMessage("❌ Failed to mark as Paid");
+    } finally {
+      setLoadingPayment(false);
+    }
   };
 
   const getNextButton = () => {
@@ -126,11 +150,10 @@ export default function OrderCard({ order }) {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this order?")) {
       try {
-        const res = await fetch(`${API_BASE_URL}/orders/${_id}`, { method: "DELETE" });
+        const res = await fetch(`${ADMIN_BASE_URL}/orders/${_id}`, { method: "DELETE" });
         if (res.ok) {
           showMessage("✅ Order deleted");
-          // Optionally, reload or remove card. For now, reload:
-          setTimeout(() => window.location.reload(), 100);
+          setIsDeleted(true);
         } else {
           showMessage("❌ Failed to delete order");
         }
@@ -140,8 +163,16 @@ export default function OrderCard({ order }) {
     }
   };
 
+  if (isDeleted) return null;
+
   return (
-    <div className="border rounded-2xl p-4 bg-white relative">
+    <div className={`border rounded-2xl p-4 bg-white relative ${order.paymentStatus === "Paid" ? "border-green-600 bg-green-50" : ""}`}>
+      {/* ✅ Payment Paid Banner */}
+      {order.paymentStatus === "Paid" && (
+        <div className="absolute left-0 top-0 w-full rounded-t-2xl bg-green-600 text-white text-sm font-semibold px-4 py-2 flex items-center z-10" style={{borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem'}}>
+          Payment Paid{order.paymentMethod ? ` - ${order.paymentMethod}` : ""}
+        </div>
+      )}
       {/* ✅ Banner for new items */}
       {hasNewItems && (
         <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
@@ -154,6 +185,8 @@ export default function OrderCard({ order }) {
           Table: {tableName || order.tableId?.tableNumber}
           <br />
           Customer : {order?.placedBy}
+          <br />
+          Payment: {order.paymentStatus || "Pending"}{order.paymentMethod ? ` (${order.paymentMethod})` : ""}
         </div>
               <div className="flex items-center">
           <div className="text-sm px-2 py-1 rounded-lg bg-gray-100">{localStatus}</div>
@@ -205,6 +238,15 @@ export default function OrderCard({ order }) {
           >
             <FileText size={16} /> Generate Bill
           </button>
+          {order.status === "completed" && order.paymentStatus === "Pending" && (
+            <button
+              onClick={handleMarkAsPaid}
+              className="mt-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+              disabled={loadingPayment}
+            >
+              {loadingPayment ? "Processing..." : "Mark as Paid"}
+            </button>
+          )}
         </div>
       )}
 
@@ -240,6 +282,7 @@ export default function OrderCard({ order }) {
                   ))}
                 </ul>
               </div>
+
               <div>
                 <h5 className="font-bold mt-2">Drink Items</h5>
                 <ul>

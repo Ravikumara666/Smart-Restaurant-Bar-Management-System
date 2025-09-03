@@ -192,17 +192,6 @@ export const updateOrder = async (req, res) => {
   }
 };
 
-// Delete order
-export const deleteOrder = async (req, res) => {
-  try {
-    await Order.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Order deleted" });
-  } catch (err) {
-    res.status(500).json({ error: "Delete failed" });
-  }
-};
-
-// Add items to an existing order
 
 
-// ✅ Mark order as complete
+

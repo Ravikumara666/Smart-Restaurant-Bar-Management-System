@@ -1,5 +1,5 @@
 // admin/components/Sidebar.jsx
-import { LayoutDashboard, ListOrdered, Table2, Utensils, Receipt } from "lucide-react";
+import { LayoutDashboard, ListOrdered, Table2, Utensils, Receipt, CreditCard } from "lucide-react";
 import React from "react";
 import { NavLink } from "react-router-dom";
 
@@ -26,6 +26,9 @@ export default function Sidebar() {
         </NavLink>
         <NavLink to="/admin/sales" className={navItem}>
           <Receipt size={18} /> Sales
+        </NavLink>
+        <NavLink to="/admin/payments" className={navItem}>
+          <CreditCard size={18} /> Online Payments
         </NavLink>
       </nav>
     </aside>
