@@ -9,12 +9,15 @@ const OrderSchema = new mongoose.Schema({
       type: { type: String, enum: ["original", "additional"], default: "original" }
     }
   ],
-  additionalItems: [
+  additionalItems: {
+  type: [
     {
       menuItemId: { type: mongoose.Schema.Types.ObjectId, ref: "MenuItem", required: true },
       quantity: { type: Number, default: 1, min: 1 }
     }
   ],
+  default: []
+},
   totalPrice: { type: Number, required: true, min: 0 },
   additionalPrice: { type: Number, default: 0 },
   status: { type: String, enum: ["pending", "confirmed", "preparing", "ready", "served", "cancelled", "completed"], default: "pending" },

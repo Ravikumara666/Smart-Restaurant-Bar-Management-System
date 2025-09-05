@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { fetchTables, freeTableThunk, addTableThunk, updateTableThunk, deleteTableThunk } from "../features/tables/tablesSlice";
-import { Check, X, Plus, Edit, Trash ,Users,MapPin} from "lucide-react";
+import { Check, X, Plus, Edit, Trash ,Users,MapPin,Clock} from "lucide-react";
 import TableFormModal from "../components/TableFormModal";
 import ConfirmDialog from "../components/ConfirmDialog";
 

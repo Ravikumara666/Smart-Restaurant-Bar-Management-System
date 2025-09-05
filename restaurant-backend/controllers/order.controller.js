@@ -92,8 +92,14 @@ export const addItemsToOrder = async (req, res) => {
     order.expiresAt = new Date(Date.now() + 60 * 60 * 1000);
     if (order.status === "served") order.status = "pending";
 
-    if (!order.additionalItems) order.additionalItems = [];
-    order.additionalItems.push(...items);
+    if (!Array.isArray(order.additionalItems)) {
+  console.warn("⚠️ additionalItems was undefined, initializing as empty array");
+  order.additionalItems = [];
+}
+
+if (Array.isArray(items) && items.length > 0) {
+  order.additionalItems.push(...items);
+}
 
     const menuItemIds = items.map(it => it.menuItemId);
     const menuItems = await MenuItem.find({ _id: { $in: menuItemIds } });
