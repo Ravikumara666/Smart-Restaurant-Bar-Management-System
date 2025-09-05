@@ -190,25 +190,25 @@ export const rejectAdditionalItems = async (req, res) => {
     res.status(500).json({ error: "Failed to reject additional items", details: err.message });
   }
 };
-
 export const updateOrderPaymentStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { paymentStatus } = req.body;
-    console.log("its coming in uops")
-    console.log(id)
-    console.log(paymentStatus)
 
     if (!["Pending", "Paid"].includes(paymentStatus)) {
       return res.status(400).json({ error: "Invalid payment status" });
     }
 
-    const order = await Order.findById(id);
-    if (!order) return res.status(404).json({ error: "Order not found" });
-console.log(order)
-    order.paymentStatus = paymentStatus;
+    // Direct update
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { paymentStatus },
+      { new: true } // return updated order
+    );
 
-    await order.save();
+    console.log("✅ Order updated result:", order);
+
+    if (!order) return res.status(404).json({ error: "Order not found" });
 
     // Emit socket event for real-time updates
     const io = req.app.get("io");
@@ -218,14 +218,12 @@ console.log(order)
         paymentStatus: order.paymentStatus
       });
     }
-    console.log(object)
     res.status(200).json({ message: "Payment status updated", order });
   } catch (err) {
     console.error("❌ updateOrderPaymentStatus Error:", err.message);
     res.status(500).json({ error: "Failed to update payment status" });
   }
 };
-
 export const deleteOrder = async (req, res) => {
   try {
     await Order.findByIdAndDelete(req.params.id);

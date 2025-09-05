@@ -30,7 +30,6 @@ const OrderStatusPage = () => {
   const [error, setError] = useState(null);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
-
   // Status configuration
   const statusConfig = {
     pending: { 
@@ -55,9 +54,15 @@ const OrderStatusPage = () => {
       icon: CheckCircle, 
       color: 'text-green-600 bg-green-100', 
       message: 'Order ready for pickup/delivery',
+      progress: 80
+    },
+    served : { 
+      icon: CheckCircle, 
+      color: 'text-green-600 bg-green-100', 
+      message: 'Order completed successfully',
       progress: 90
     },
-    served: { 
+    completed : { 
       icon: CheckCircle, 
       color: 'text-green-600 bg-green-100', 
       message: 'Order completed successfully',
@@ -321,22 +326,17 @@ const OrderStatusPage = () => {
             </div>
             
             {/* Add More Items Button */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Add More Items</h3>
-              {order.status && order.status.toLowerCase() === "completed" ? (
-                <div className="p-4 bg-green-50 text-green-700 rounded-lg text-center">
-                  Order Completed. Please start a new order.
-                </div>
-              ) : (
+            {order.status && order.status.toLowerCase() !== "completed" && (
+              <div className="bg-white rounded-lg shadow-sm border p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Add More Items</h3>
                 <button
                   onClick={() => navigate("/", { state: { orderId: order._id } })}
-                  disabled={order.status && order.status.toLowerCase() === "completed"}
                   className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold transition-colors"
                 >
                   Add More Items
                 </button>
-              )}
-            </div>
+              </div>
+            )}
             {/* Customer Information */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -465,19 +465,43 @@ const OrderStatusPage = () => {
                 </div>
               </div>
 
-              {/* Estimated Time */}
-              <div className="mt-4 p-3 bg-orange-50 rounded-lg">
-                <div className="flex items-center text-orange-700">
-                  <Clock size={16} className="mr-2" />
-                  <span className="text-sm font-medium">
-                    {order.status === 'delivered' ? 'Order Completed' : 'Estimated Time'}
-                  </span>
+              {/* Estimated Time - show only if order.status is NOT "completed" */}
+              {order.status.toLowerCase() !== "completed" && (
+                <div className="mt-4 p-3 bg-orange-50 rounded-lg">
+                  <div className="flex items-center text-orange-700">
+                    <Clock size={16} className="mr-2" />
+                    <span className="text-sm font-medium">
+                      {order.status === 'delivered' ? 'Order Completed' : 'Estimated Time'}
+                    </span>
+                  </div>
+                  <div className="text-sm text-orange-600 mt-1">
+                    {order.status === 'delivered' ? 'Thank you for your order!' : '15-20 minutes'}
+                  </div>
                 </div>
-                <div className="text-sm text-orange-600 mt-1">
-                  {order.status === 'delivered' ? 'Thank you for your order!' : '15-20 minutes'}
+              )}
+
+              {/* Completed Order Payment/Paid Block */}
+              {order.status.toLowerCase() === "completed" && order.paymentStatus !== "Paid" ? (
+                <div className="bg-white rounded-lg shadow-sm border p-6 text-center mt-4">
+                  <div className="text-lg font-semibold text-gray-900 mb-4">
+                    Order Completed! Payment Pending
+                  </div>
+                  <button
+                    onClick={() => navigate(`/payment/${order._id}`)}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    View &amp; Pay Bill
+                  </button>
                 </div>
-              </div>
-            </div>
+              ) : order.status.toLowerCase() === "completed" && order.paymentStatus === "Paid" ? (
+                <div className="p-6 bg-green-100 border border-green-300 rounded-xl text-center mt-4 shadow-md">
+                  <div className="text-3xl font-bold text-green-800 mb-2">Payment Successful</div>
+                  <p className="text-green-700 text-sm md:text-base">
+                    Thank you! Your payment has been received and confirmed.
+                  </p>
+                </div>
+              ) : null}
+            </div> 
 
             {/* Help Section */}
             <div className="bg-white rounded-lg shadow-sm border p-6">

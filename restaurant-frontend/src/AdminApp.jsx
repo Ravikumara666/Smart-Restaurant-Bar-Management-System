@@ -33,6 +33,7 @@ const AdminApp = () => {
             <Route path="menu" element={<MenuPage />} />
             <Route path="sales" element={<SalesPage/>} />
             <Route path="payments" element={<OnlinePayments/>}/>
+            
 
             {/* Fallback for wrong routes */}
             <Route path="*" element={<p>404 - Page not found</p>} />
