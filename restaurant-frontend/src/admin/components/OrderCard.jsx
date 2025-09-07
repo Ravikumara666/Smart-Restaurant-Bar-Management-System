@@ -25,7 +25,7 @@ export default function OrderCard({ order }) {
   };
 
   // ✅ Listen for order updates via socket
-  useEffect(() => {
+useEffect(() => {
     socket.on("orderUpdated", (data) => {
       if (data.orderId === _id && data.addedItemsCount > 0) {
 
@@ -89,29 +89,37 @@ export default function OrderCard({ order }) {
     setBill(result);
   };
 
-  const handleMarkAsPaid = async () => {
-    if (!window.confirm("Are you sure you want to mark this order as Paid?")) return;
-    try {
-      setLoadingPayment(true);
-      const response = await fetch(`${ADMIN_BASE_URL}/orders/${_id}/payment`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentStatus: "Paid" })
-      });
-      if (response.ok) {
-        // Update local order paymentStatus
-        order.paymentStatus = "Paid";
-        showMessage("✅ Payment marked as Paid");
-      } else {
-        showMessage("❌ Failed to mark as Paid");
-      }
-    } catch (err) {
-      console.error("❌ Failed to mark payment:", err);
-      showMessage("❌ Failed to mark as Paid");
-    } finally {
-      setLoadingPayment(false);
+const handleMarkAsPaid = async () => {
+  if (!window.confirm("Are you sure you want to mark this order as Paid?")) return;
+
+  try {
+    setLoadingPayment(true);
+
+    const response = await fetch(`${ADMIN_BASE_URL}/orders/${_id}/payment`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentStatus: "Paid" })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+
+      // ✅ Use state update or Redux dispatch instead of mutating `order`
+      setLocalStatus("Paid"); // if you keep payment status in local state
+      // or dispatch(updateOrderPaymentStatusThunk(data.order));
+
+      showMessage("✅ Payment marked as Paid");
+    } else {
+      const err = await response.json();
+      showMessage(`❌ Failed to mark as Paid: ${err.error || "Unknown error"}`);
     }
-  };
+  } catch (err) {
+    console.error("❌ Failed to mark payment:", err);
+    showMessage("❌ Failed to mark as Paid");
+  } finally {
+    setLoadingPayment(false);
+  }
+};
 
   const getNextButton = () => {
     if (localStatus.toLowerCase() === "pending") {
@@ -321,7 +329,7 @@ export default function OrderCard({ order }) {
         ✕
       </button>
 
-      <div className="font-bold text-xl text-center mb-6 text-gray-800">Restaurant Bill</div>
+      <div className="font-bold text-xl text-center mb-6 text-gray-800">HOTEL BASAVA RESIDENCY Chittapur</div>
       
       <div id="printable-bill" className="text-sm text-gray-800">
         {/* Header */}
@@ -428,7 +436,7 @@ export default function OrderCard({ order }) {
             printWindow.document.write(`
               <html>
                 <head>
-                  <title>Restaurant Bill - Table ${bill.table}</title>
+                  <title>HOTEL BASAVA RESIDENCY Chittapur - Table ${bill.table}</title>
                   <style>
                     body { 
                       font-family: 'Courier New', monospace; 
@@ -479,7 +487,7 @@ export default function OrderCard({ order }) {
                   </style>
                 </head>
                 <body>
-                  <div class="header">RESTAURANT BILL</div>
+                  <div class="header">HOTEL BASAVA RESIDENCY Chittapur</div>
                   ${printContents.replace(/class="/g, 'class="').replace(/₹/g, 'Rs. ')}
                   <div class="footer">Thank You for Visiting!<br/>Please Visit Again 🙏</div>
                 </body>
@@ -502,195 +510,3 @@ export default function OrderCard({ order }) {
     </div>
   )
 }
-
-//   return (
-//     <div className={`border rounded-2xl p-4 bg-white relative ${order.paymentStatus === "Paid" ? "border-green-600 bg-green-50" : ""}`}>
-//       {/* ✅ Payment Paid Banner */}
-//       {order.paymentStatus === "Paid" && (
-//         <div className="absolute left-0 top-0 w-full rounded-t-2xl bg-green-600 text-white text-sm font-semibold px-4 py-2 flex items-center z-10" style={{borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem'}}>
-//           Payment Paid{order.paymentMethod ? ` - ${order.paymentMethod}` : ""}
-//         </div>
-//       )}
-//       {/* ✅ Banner for new items */}
-//       {hasNewItems && (
-//         <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
-//           New Items!
-//         </div>
-//       )}
-
-//       <div className="flex justify-between items-center">
-//         <div className="font-semibold">
-//           Table: {tableName || order.tableId?.tableNumber}
-//           <br />
-//           Customer : {order?.placedBy}
-//           <br />
-//           Payment: {order.paymentStatus || "Pending"}{order.paymentMethod ? ` (${order.paymentMethod})` : ""}
-//         </div>
-//               <div className="flex items-center">
-//           <div className="text-sm px-2 py-1 rounded-lg bg-gray-100">{localStatus}</div>
-//           <button onClick={handleDelete} className="text-red-600 hover:text-red-800 ml-2">
-//             <Trash2 size={18} />
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* ✅ Original Items Section */}
-//       <div className="mt-3">
-//         <h4 className="font-semibold text-gray-700">Original Items</h4>
-//         <ul className="text-sm text-gray-600 mt-1 space-y-1">
-//           {localItems.map((i) => (
-//             <li key={i._id}>
-//               {i.quantity} × {i.menuItemId?.name || i.name}
-//             </li>
-//           ))}
-//         </ul>
-//       </div>
-
-
-//       {/* ✅ Additional Items Section */}
-//       {localAdditionalItems.length > 0 && (
-//         <div className="mt-3 border-t pt-2">
-//           <h4 className="font-semibold text-gray-700">Additional Items</h4>
-//           <ul className="text-sm text-gray-600 mt-1 space-y-1">
-//             {localAdditionalItems.map((i) => (
-//               <li key={i._id}>
-//                 {i.quantity} × {i.menuItemId?.name || i.name}
-//               </li>
-//             ))}
-//           </ul>
-//         </div>
-//       )}
-
-//       <div className="font-semibold mt-3">Instructions: {order?.notes}</div>
-
-//       <div className="flex items-center justify-between mt-3">
-//         <div className="font-semibold">₹{totalPrice}</div>
-//         <div className="flex gap-2">{getNextButton()}</div>
-//       </div>
-
-//       {localStatus === "completed" && (
-//         <div className="mt-3">
-//           <button
-//             onClick={generateBill}
-//             className="px-3 py-1 rounded-lg bg-gray-800 text-white flex items-center gap-1"
-//           >
-//             <FileText size={16} /> Generate Bill
-//           </button>
-//           {order.status === "completed" && order.paymentStatus === "Pending" && (
-//             <button
-//               onClick={handleMarkAsPaid}
-//               className="mt-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-//               disabled={loadingPayment}
-//             >
-//               {loadingPayment ? "Processing..." : "Mark as Paid"}
-//             </button>
-//           )}
-//         </div>
-//       )}
-
-//       {/* ✅ Popup Messages */}
-//       {message && (
-//         <div className="absolute top-2 right-2 bg-black text-white text-xs px-3 py-1 rounded-lg shadow-lg">
-//           {message}
-//         </div>
-//       )}
-
-//       {/* ✅ Bill Modal (unchanged) */}
-//       {bill && (
-//         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-//           <div className="bg-white rounded-2xl p-6 w-full max-w-sm relative">
-//             <button
-//               className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-//               onClick={() => setBill(null)} // close local bill modal
-//             >
-//               ✕
-//             </button>
-
-//             <div className="font-semibold text-lg text-center mb-4">Restaurant Bill</div>
-//             <div id="printable-bill" className="text-sm text-gray-800">
-//               <h4 className="text-center font-semibold mb-2">Table: {bill.table}</h4>
-//               <div>
-//                 <h5 className="font-bold mt-2">Food Items</h5>
-//                 <ul>
-//                   {bill.items.filter(item => item.category !== "drinks").map((i, idx) => (
-//                     <li key={idx} className="flex justify-between">
-//                       <span>{i.quantity} × {i.name}</span>
-//                       <span>₹{i.subtotal}</span>
-//                     </li>
-//                   ))}
-//                 </ul>
-//               </div>
-
-//               <div>
-//                 <h5 className="font-bold mt-2">Drink Items</h5>
-//                 <ul>
-//                   {bill.items.filter(item => item.category === "drinks").map((i, idx) => (
-//                     <li key={idx} className="flex justify-between">
-//                       <span>{i.quantity} × {i.name}</span>
-//                       <span>₹{i.subtotal}</span>
-//                     </li>
-//                   ))}
-//                 </ul>
-//               </div>
-//               <div className="mt-4 border-t pt-2">
-//                 <div className="flex justify-between"><span>Food Subtotal:</span><span>₹{bill.totals.foodSubtotal}</span></div>
-//                 <div className="flex justify-between"><span>Drink Subtotal:</span><span>₹{bill.totals.drinkSubtotal}</span></div>
-//                 <div className="flex justify-between"><span>CGST (2.5%):</span><span>₹{bill.totals.cgst}</span></div>
-//                 <div className="flex justify-between"><span>SGST (2.5%):</span><span>₹{bill.totals.sgst}</span></div>
-//                 <div className="flex justify-between font-bold border-t mt-2 pt-2"><span>Grand Total:</span><span>₹{bill.totals.grandTotal}</span></div>
-//               </div>
-//             </div>
-
-//             {/* Download + Print */}
-//             <div className="mt-6 flex justify-between gap-3">
-//               <a
-//                 className="flex-1 px-4 py-2 rounded-xl bg-gray-900 text-white text-center"
-//                 href={`${ADMIN_BASE_URL}/orders/${bill.orderId}/bill`}
-//                 target="_blank"
-//                 rel="noreferrer"
-//               >
-//                 Download
-//               </a>
-//               <button
-//                 onClick={() => {
-//                   const printContents = document.getElementById("printable-bill").innerHTML;
-//                   const printWindow = window.open("", "", "width=300,height=500");
-//                   printWindow.document.write(`
-//                     <html>
-//                       <head>
-//                         <title>Print Bill</title>
-//                         <style>
-//                           body { font-family: monospace; font-size: 12px; padding: 10px; }
-//                           .line { border-top: 1px dashed #000; margin: 6px 0; }
-//                           .center { text-align: center; font-weight: bold; margin-bottom: 10px; }
-//                           .flex { display: flex; justify-content: space-between; }
-//                         </style>
-//                       </head>
-//                       <body>
-//                         <div class="center">Restaurant Bill</div>
-//                         ${printContents}
-//                         <div class="line"></div>
-//                         <div class="center">Thank You! Visit Again 🙏</div>
-//                       </body>
-//                     </html>
-//                   `);
-//                   printWindow.document.close();
-//                   printWindow.focus();
-//                   printWindow.print();
-//                   printWindow.close();
-//                 }}
-//                 className="flex-1 px-4 py-2 rounded-xl bg-blue-600 text-white"
-//               >
-//                 Print
-//               </button>
-//             </div>
-
-
-//           </div>
-//         </div>
-//       )}
-
-//     </div>
-//   );
-// }
-

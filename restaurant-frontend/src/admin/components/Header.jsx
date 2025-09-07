@@ -60,9 +60,9 @@ export default function Header() {
           </div>
           <div className="hidden sm:block">
             <h1 className="font-bold text-xl bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Smart Restaurant Admin
+              Hotel Basava Residency
             </h1>
-            <p className="text-xs text-gray-500">Admin Dashboard</p>
+            <p className="text-xs text-gray-500">Chittapur</p>
           </div>
         </div>
       </div>

@@ -12,7 +12,8 @@ const MenuPage = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [loading, setLoading] = useState(true);
-const navigate=useNavigate()
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate=useNavigate()
   useEffect(() => {
     (async () => {
       try {
@@ -41,9 +42,14 @@ const navigate=useNavigate()
     })();
   }, []);
 
-  const filteredMenu = selectedCategory
-    ? menu.filter(item => item.category === selectedCategory)
-    : menu;
+  const filteredMenu = menu.filter(item => {
+    const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
+    const matchesSearch = searchQuery
+      ? item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+    return matchesCategory && matchesSearch;
+  });
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
@@ -64,14 +70,13 @@ const navigate=useNavigate()
  <div className="bg-orange-500 text-white sticky top-0 z-40 shadow-md">
       <div className="flex items-center justify-between p-4">
         {/* Left Section */}
-        <div className="flex items-center">
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="lg:hidden mr-3 p-1 hover:bg-orange-600 rounded-lg transition-colors"
-          >
-            <Menu size={24} />
-          </button>
-          <h1 className="text-xl font-bold">Smart Dining</h1>
+          <div className="flex flex-col md:flex-row md:items-center text-center md:text-left">
+          <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">
+            HOTEL BASAVA RESIDENCY 
+          </h1>
+          <span className="ml-0 md:ml-2 text-sm md:text-base text-gray-100 font-semibold">
+            Chittapur
+          </span>
         </div>
 
         {/* Right Section - Login Button */}
@@ -148,6 +153,16 @@ const navigate=useNavigate()
         {/* Main Content */}
         <div className="flex-1 lg:ml-0">
           <div className="p-4 lg:p-6">
+            {/* Search Bar */}
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search menu items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+              />
+            </div>
             {/* Category Header */}
             <div className="mb-6">
               <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">

@@ -7,7 +7,6 @@ import {
 import OrderCard from "../components/OrderCard";
 import OrderTable from "../components/OrderTable";
 import socket from "../utils/socket";
-// import socket from "../utils/socket"; // ✅ Import socket instance
 
 const tabs = ["New", "Current", "History"];
 
@@ -29,29 +28,29 @@ export default function OrdersPage() {
   }, [dispatch]);
 
   // ✅ Listen for new order event via socket
-  useEffect(() => {
-    // Listen for new order creation
-    socket.on("orderCreated", (order) => {
-      // console.log("📢 New order received:", order);
-      setTab("New")
-      dispatch(fetchRecentOrders());
-      dispatch(fetchAllOrders());
-    });
+// ✅ Single socket listener setup
+useEffect(() => {
+  socket.on("orderCreated", (order) => {
+    console.log("📢 New order received:", order);
+    setTab("New");
+    dispatch(fetchRecentOrders());
+    dispatch(fetchAllOrders());
+  });
 
-    // Listen for order updates (items added)
-    socket.on("orderUpdated", (update) => {
-      setTab("Current")
-      // console.log("📢 Order updated:", update);
-      dispatch(fetchRecentOrders());
-      dispatch(fetchAllOrders());
+  socket.on("orderUpdated", (update) => {
+    console.log("📢 Order updated:", update);
+    setTab("Current");
+    dispatch(fetchRecentOrders());
+    dispatch(fetchAllOrders());
+  });
 
-    });
+  return () => {
+    socket.off("orderCreated");
+    socket.off("orderUpdated");
+  };
+}, [dispatch]);
 
-    return () => {
-      socket.off("orderCreated");
-      socket.off("orderUpdated");
-    };
-  }, []);
+
   const filtered = useMemo(() => {
     const normalize = (s) => (s || "").toLowerCase();
     let result = [];

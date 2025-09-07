@@ -326,7 +326,7 @@ const OrderStatusPage = () => {
             </div>
             
             {/* Add More Items Button */}
-            {order.status && order.status.toLowerCase() !== "completed" && (
+            {order.status && order.status.toLowerCase() == "completed"||"cancelled" && (
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Add More Items</h3>
                 <button
@@ -466,7 +466,7 @@ const OrderStatusPage = () => {
               </div>
 
               {/* Estimated Time - show only if order.status is NOT "completed" */}
-              {order.status.toLowerCase() !== "completed" && (
+              {order.status.toLowerCase() !== "completed" ||"cancelled" && (
                 <div className="mt-4 p-3 bg-orange-50 rounded-lg">
                   <div className="flex items-center text-orange-700">
                     <Clock size={16} className="mr-2" />

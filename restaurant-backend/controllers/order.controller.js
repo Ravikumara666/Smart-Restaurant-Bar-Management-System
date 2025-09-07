@@ -130,13 +130,17 @@ const populatedOrder = await Order.findById(order._id)
 
     const io = req.app.get("io");
     if (io) {
+      const newAdditionalItems = items.map(it => {
+        const menuItem = menuItems.find(mi => mi._id.toString() === it.menuItemId.toString());
+        return {
+          name: menuItem ? menuItem.name : it.name,
+          quantity: it.quantity
+        };
+      });
       io.emit("orderUpdated", {
         message: "Additional items added to order",
         orderId: order._id,
-        newAdditionalItems: items.map(it => ({
-          name: it.name || it.menuItemId?.name,
-          quantity: it.quantity
-        })),
+        newAdditionalItems: newAdditionalItems,
         addedItemsCount: items.length,
         newAdditionalPrice: order.additionalPrice,
         newTotalPrice: order.totalPrice,

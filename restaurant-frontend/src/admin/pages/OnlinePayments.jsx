@@ -6,20 +6,19 @@ const ADMIN_BASE_URL = import.meta.env.VITE_ADMIN_BASE_URL;
 export default function OnlinePayments() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("Today");
   const [search, setSearch] = useState("");
+  const [bill, setBill] = useState(null); // ✅ Bill state
+  const [billLoading, setBillLoading] = useState(false);
 
   const fetchPayments = async () => {
     setLoading(true);
     try {
       const res = await fetch(`${ADMIN_BASE_URL}/orders`);
       const data = await res.json();
-
-      // ✅ Filter only UPI payments
       const upiPayments = (data || []).filter(
-        (order) => order.paymentMethod === "upi"
+        (order) => order.paymentMethod === "upi" 
       );
-
       setPayments(upiPayments);
     } catch (err) {
       console.error("❌ Failed to fetch payments:", err);
@@ -29,43 +28,44 @@ export default function OnlinePayments() {
     }
   };
 
+  const fetchBill = async (orderId) => {
+    setBillLoading(true);
+    try {
+      const res = await fetch(`${ADMIN_BASE_URL}/orders/${orderId}/bill`);
+      const data = await res.json();
+      setBill(data);
+    } catch (err) {
+      console.error("❌ Failed to fetch bill:", err);
+      setBill(null);
+    } finally {
+      setBillLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchPayments();
   }, []);
 
-  // Helper function to format date to YYYY-MM-DD for comparison
+  // ✅ Filtering logic unchanged...
   const formatDate = (date) => {
     const d = new Date(date);
-    const year = d.getFullYear();
-    const month = (d.getMonth() + 1).toString().padStart(2, "0");
-    const day = d.getDate().toString().padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    return d.toISOString().split("T")[0];
   };
-
   const todayStr = formatDate(new Date());
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = formatDate(yesterday);
 
   const filteredPayments = payments.filter((p) => {
-    // Filter by date
     const paymentDateStr = formatDate(p.createdAt || p.date || new Date());
-    if (filter === "Today" && paymentDateStr !== todayStr) {
-      return false;
-    }
-    if (filter === "Yesterday" && paymentDateStr !== yesterdayStr) {
-      return false;
-    }
-    // Filter by search query
+    if (filter === "Today" && paymentDateStr !== todayStr) return false;
+    if (filter === "Yesterday" && paymentDateStr !== yesterdayStr) return false;
     if (search.trim() === "") return true;
     const lowerSearch = search.toLowerCase();
-    const tableNumber = p.tableId?.tableNumber?.toString() || "";
-    const customer = p.placedBy?.toString() || "";
-    const totalPrice = p.totalPrice?.toString() || "";
     return (
-      tableNumber.toLowerCase().includes(lowerSearch) ||
-      customer.toLowerCase().includes(lowerSearch) ||
-      totalPrice.toLowerCase().includes(lowerSearch)
+      (p.tableId?.tableNumber || "").toLowerCase().includes(lowerSearch) ||
+      (p.placedBy || "").toLowerCase().includes(lowerSearch) ||
+      (p.totalPrice?.toString() || "").includes(lowerSearch)
     );
   });
 
@@ -73,6 +73,7 @@ export default function OnlinePayments() {
     <div className="p-6 space-y-4">
       <h2 className="font-semibold text-xl mb-4">💳 Online Payments (UPI)</h2>
 
+      {/* Filters + Search */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
         <div className="flex gap-2">
           {["Today", "Yesterday", "All"].map((f) => (
@@ -109,7 +110,7 @@ export default function OnlinePayments() {
               key={p._id}
               className="border rounded-2xl p-4 bg-white relative shadow"
             >
-              {/* ✅ Paid Banner */}
+              {/* Paid Banner */}
               {p.paymentStatus === "Paid" && (
                 <div className="absolute left-0 top-0 w-full rounded-t-2xl bg-green-600 text-white text-sm font-semibold px-4 py-2">
                   Payment Paid - {p.paymentMethod?.toUpperCase()}
@@ -131,17 +132,48 @@ export default function OnlinePayments() {
 
                 <div className="mt-3">
                   <button
-                    onClick={() =>
-                      window.open(`${ADMIN_BASE_URL}/orders/${p._id}/bill`, "_blank")
-                    }
+                    onClick={() => fetchBill(p._id)}
                     className="px-3 py-1 rounded-lg bg-gray-800 text-white flex items-center gap-1"
                   >
-                    <FileText size={16} /> View Bill
+                    <FileText size={16} /> {billLoading ? "Loading..." : "View Bill"}
                   </button>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ✅ Bill Modal */}
+      {bill && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm relative shadow-2xl">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl"
+              onClick={() => setBill(null)}
+            >
+              ✕
+            </button>
+            <div className="font-bold text-xl text-center mb-6 text-gray-800">
+              Restaurant Bill
+            </div>
+
+            {/* Food Items */}
+            {bill.items.map((i, idx) => (
+              <div key={idx} className="flex justify-between">
+                <span>{i.quantity}× {i.name}</span>
+                <span>₹{i.subtotal}</span>
+              </div>
+            ))}
+
+            {/* Totals */}
+            <div className="border-t pt-3 mt-3">
+              <div className="flex justify-between font-bold">
+                <span>Total:</span>
+                <span>₹{bill.totals?.grandTotal}</span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

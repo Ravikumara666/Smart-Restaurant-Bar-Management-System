@@ -1,8 +1,21 @@
 // src/components/PaymentResult.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function PaymentResult({ status, details, onClose }) {
   const isSuccess = status === "success";
+  const navigate = useNavigate();
+
+  const handleClose = () => {
+    if (details && details.orderId) {
+      navigate(`/order-status/${details.orderId}`);
+    } else {
+      onClose();
+    }
+  };
+
+  const paymentDate = details && details.date ? new Date(details.date) : new Date();
+  const formattedDate = paymentDate.toLocaleString();
 
   return (
     <div className={`fixed inset-0 flex items-center justify-center z-50 px-4`}>
@@ -25,11 +38,14 @@ export default function PaymentResult({ status, details, onClose }) {
             <p><strong>Order ID:</strong> {details.orderId}</p>
             <p><strong>Transaction ID:</strong> {details.transactionId}</p>
             <p><strong>Amount:</strong> ₹{details.amount}</p>
+            <p><strong>Status:</strong> {isSuccess ? "Paid" : "Failed"}</p>
+            <p><strong>Date &amp; Time:</strong> {formattedDate}</p>
+            {details.paymentMethod && <p><strong>Payment Method:</strong> {details.paymentMethod}</p>}
           </div>
         )}
 
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className={`w-full py-3 rounded-xl font-semibold text-white transition-colors ${
             isSuccess ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
           }`}

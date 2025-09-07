@@ -33,9 +33,8 @@ export default function AdminLogin() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <div className="text-3xl font-bold text-orange-600 mb-6 flex items-center">
-        <span className="mr-2">🍽️</span> Smart Dining
+        <span className="mr-0">🍽️</span> HOTEL BASAVA RESIDENCY
       </div>
-
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6">Staff Login</h2>
 

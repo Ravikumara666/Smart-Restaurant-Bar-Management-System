@@ -7,6 +7,8 @@ import { getCatogeries } from "../../utils/menuApi";
 export default function MenuFormModal({ onClose, editItem }) {
   const dispatch = useDispatch();
   const [categories,setCategories]=useState([])
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
  useEffect(() => {
     (async () => {
@@ -45,6 +47,7 @@ export default function MenuFormModal({ onClose, editItem }) {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
+  setIsSubmitting(true);
 
   const data = new FormData();
   Object.keys(formData).forEach((key) => {
@@ -57,14 +60,27 @@ if (key === "isVeg") {
     }
   });
 
-  if (editItem) {
--   dispatch(updateMenuItem({ id: editItem._id, data }));
-+   dispatch(updateMenuItem({ id: editItem._id, formData: data }));
-  } else {
-    dispatch(addMenuItem(data));
+  try {
+    if (editItem) {
+      await dispatch(updateMenuItem({ id: editItem._id, formData: data })).unwrap();
+      setSuccessMessage("Item updated successfully");
+    } else {
+      await dispatch(addMenuItem(data)).unwrap();
+      setSuccessMessage("Item added successfully");
+    }
+    setTimeout(() => {
+      setSuccessMessage("");
+      onClose();
+    }, 2000);
+  } catch (error) {
+    if (editItem) {
+      alert("Failed to update item: " + error.message);
+    } else {
+      alert("Failed to add item: " + error.message);
+    }
+  } finally {
+    setIsSubmitting(false);
   }
-
-  onClose();
 };
 
 
@@ -74,6 +90,11 @@ if (key === "isVeg") {
         <h2 className="text-lg font-bold mb-4">
           {editItem ? "Edit Menu Item" : "Add Menu Item"}
         </h2>
+        {successMessage && (
+          <div className="mb-4 p-2 bg-green-200 text-green-800 rounded">
+            {successMessage}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="text"
@@ -146,14 +167,16 @@ if (key === "isVeg") {
               type="button"
               onClick={onClose}
               className="px-4 py-2 bg-gray-300 rounded"
+              disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded"
+              disabled={isSubmitting}
             >
-              {editItem ? "Update" : "Add"}
+              {isSubmitting ? (editItem ? "Updating..." : "Adding...") : (editItem ? "Update" : "Add")}
             </button>
           </div>
         </form>
